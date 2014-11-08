@@ -10,43 +10,43 @@ class Array
   end
 end
 
-def binary_operations(a, b)
-  l=[]
+
+def binary_combinations(a, b)
+  list=[]
   if a.is_a?(String) && b.is_a?(String)
-    l << a+b
-    l << b+a
+    list << a+b
+    list << b+a
   end
   COMMUTATIVE_BINARY_OPERATORS.each do |op|
-    l << [a, op, b]
-  end
-  return l
-  ORDERED_BINARY_OPERATORS.each do |op|
-    yield("#{a} #{op} #{b}")
+    list << [a, op, b]
   end
   ORDERED_BINARY_OPERATORS.each do |op|
-    yield("#{b} #{op} #{a}")
+    list << [a, op, b]
   end
-
+  ORDERED_BINARY_OPERATORS.each do |op|
+    list << [a, op, b]
+  end
+  list
 end
 
 def generate_expressions(operands)
-  l = []
-  operands.each do |op|
-    others = operands.except(op)
-    b = generate_expressions2(op, others)
-    l += b
+  if operands.length == 1
+    operands
+  else
+    l = []
+    operands.each do |lhs|
+      generate_expressions(operands.except(lhs)).each do |rhs|
+        l+= binary_combinations(lhs, rhs)
+      end
+    end
+    l
   end
-  l
 end
 
-def generate_expressions2(op, others)
-  l = []
-  others.each do |op2|
-    l +=  binary_operations(op, op2)
-    others.except(op2)
-  end
-  l
+def stringify(expr)
+  expr.respond_to?(:join) ? expr.join(" ") : expr
 end
-  
-generate_expressions(digits).each{|expr| puts expr.respond_to?(:join) ? expr.join(" ") : expr}
 
+# FIXME: sort and remove duplicates
+
+generate_expressions(digits).each{|e| puts stringify(e)}

@@ -1,3 +1,4 @@
+#!/c/Ruby193/bin/ruby
 digits = %w{1 9 4 2}
 
 COMMUTATIVE_BINARY_OPERATORS = %w{+ *}

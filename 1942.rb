@@ -1,55 +1,98 @@
 #!/c/Ruby193/bin/ruby
 
-# todo remove duplicates
-# sort by (normalized-form) order 
-# normalized: use commutative to put lessor arg first.
-# evaluate and store by result
-# remove those that are not whole numbers > 0 <=100
-# print with braces but only when needed
+# todo
+# remove duplicates
+#   sort by (normalized-form) order 
+#   normalized: use commutative to put lessor arg first.
+#   use associative law
+# print with braces only when needed
+# add Fact operator
 
 require "util"
 require "expressions"
 require "operators"
 require "pry"
 
-# Given a list of operands, e.g. ["1", "2", "3"]
-# return all the ways these can be combined lexically in order
-# e.g. [["1", "2", "3"], ["1", "23"], ["12", "3"], ["123"]]
-def operand_combinations(operands)
+# Given a list of strings, e.g. ["1", "2", "3"]
+# return all the ways these can be combined as strings
+# e.g. [["1", "2", "3"] (no combination), ["1", "23"], ["12", "3"], ["123"]]
+def lexical_combinations(operands)
+  l = []
   if operands.length == 1
-    [operands]
+    l.add(operands)
   else
-    l = []
-    lhs = operands[0]
-    operand_combinations(operands.except(lhs)).each do |rhs|
-      if !rhs.is_a?(Array)
-        binding.pry
-      end
-      if rhs.is_a?(Array)
-        l << [lhs] + rhs
-      end
-      l << [lhs + rhs[0]] + rhs[1..rhs.length]
+    digit = operands.first
+    lexical_combinations(operands.butfirst).each do |tail|
+      l.add([digit] + tail)     # keep separate or
+      l.add([digit + tail.first] + tail.butfirst) # combine first and second
       end
     l
   end
 end
 
+# given a list of expressions, operands return all possible expressions
 def build_expressions(operands)
   list = []
   if operands.length == 1
-    [Digit.new(operands[0])]
+    list.add(operands.first)
+    # FIXME add monadic expressions here e.g. Factorial
   else
-    COMMUTATIVE_BINARY_OPERATORS.each do |op|
+    build_expressions(operands.butfirst).each do |rhs|
+      list.add(BinaryExpression.new(Plus, operands.first, rhs))
+      list.add(BinaryExpression.new(Times, operands.first, rhs))
+      list.add(BinaryExpression.new(Minus, operands.first, rhs))
+      list.add(BinaryExpression.new(Divide, operands.first, rhs))
+      #list.add(BinaryExpression.new(Expt, operands.first, rhs))
     end
   end
   list
 end
 
+# True if the value is one of the ones we care about
+# a whole number between 1 and 100 inclusive
+def interesting?(v)
+  v >= 1 && v <= 100 && v.floor == v
+end
+
+def evaluate_expressions(exprs)
+  value_expressions = Hash.new{|h, k| h[k]=[]}
+  exprs.each do |expr| 
+    v = nil
+    begin
+      v = expr.evaluate
+      if interesting?(v)
+        value_expressions[v.floor] << expr
+      else
+      end
+    rescue Exception => e
+      STDERR.puts e
+    end
+  end
+  value_expressions
+end
+
+def print_result(value_expressions)
+  value_expressions.keys.sort.each do |k|
+    puts "#{k}: #{value_expressions[k].first}" + 
+      ((value_expressions[k].length > 1) ? " plus #{value_expressions[k].length - 1} more" : "")
+  end
+end
+
 if __FILE__ == $0
-  digits = %w{1 2 3 4}
-  #permutations(%w(1 2 3 4)).each{|p| puts puts "#{p.inspect}"}
-  operand_combinations(digits).each{|e| puts "#{e.inspect}"}
-  exprs = build_expressions(operand_combinations(digits))
-  #exprs.each do |e| puts "#{e} => #{e.evaluate}" end
+  digits = %w(1 9 4 2)
+  p = permutations(digits)
+  puts "#{p.length} permutations of the digits"
+
+  # all possible operand sequences
+  lc = p.collect_concat{|sequence| lexical_combinations(sequence)}
+
+  operands = lc.map{|l| l.map{|d| Digit.new(d)}}
+  puts "#{operands.length} operand sequences"
+
+  exprs = operands.collect_concat{|o| build_expressions(o)}
+
+  puts "#{exprs.length} expressions.  Testing them all"
+
+  print_result( evaluate_expressions(exprs){|v| v >= 1 && v <= 100 && v.floor == v})
 
 end

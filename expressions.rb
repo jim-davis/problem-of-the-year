@@ -9,6 +9,9 @@ class Digit < Expression
     value.to_i
   end
   def initialize(v)
+    if !v.is_a?(String)
+      binding.pry
+    end
     self.value=v
   end
   def to_s

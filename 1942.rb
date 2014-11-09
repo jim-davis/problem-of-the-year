@@ -41,7 +41,7 @@ def build_expressions(operands)
       list.add(BinaryExpression.new(Times, operands.first, rhs))
       list.add(BinaryExpression.new(Minus, operands.first, rhs))
       list.add(BinaryExpression.new(Divide, operands.first, rhs))
-      #list.add(BinaryExpression.new(Expt, operands.first, rhs))
+      list.add(BinaryExpression.new(Expt, operands.first, rhs))
     end
   end
   list

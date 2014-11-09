@@ -8,19 +8,8 @@ class Array
   def add(l)
     self << l
   end
-end
-
-def permutations(list)
-  if list.length == 1
-    list
-  else
-    result = []
-    list.each do |elt|
-      permutations(list.except(elt)).each do |p|
-        # FIXME: this is_a test smells like a kludge
-        result << [elt] + (p.is_a?(Array) ? p : [p])
-      end
-    end
-    result
+  def remove_at(i)
+    (i > 0 ? self[0..i-1] : []) + self[i+1..self.length]
   end
 end
+

@@ -54,18 +54,18 @@ def interesting?(v)
   v >= 1 && v <= 100 && v.floor == v
 end
 
-def evaluate_expressions(exprs)
+def evaluate_expressions(exprs, filter)
   value_expressions = Hash.new{|h, k| h[k]=[]}
   exprs.each do |expr| 
     v = nil
     begin
       v = expr.evaluate
-      if interesting?(v)
+      if filter.call(v)
         value_expressions[v.floor] << expr
       else
       end
     rescue Exception => e
-      STDERR.puts "Eval #{expr} caused #{e}"
+      #STDERR.puts "Eval #{expr} caused #{e}"
     end
   end
   value_expressions
@@ -78,10 +78,9 @@ def print_result(value_expressions)
   end
 end
 
-if __FILE__ == $0
-  digits = %w(1 9 4 2)
-  p = permutations(digits)
-  puts "#{p.length} permutations of the digits"
+def find_expressions(digits, &filter)
+  p = digits.permutation
+  puts "#{p.count} permutations of the digits"
 
   # all possible operand sequences
   lc = p.collect_concat{|sequence| lexical_combinations(sequence)}
@@ -93,6 +92,16 @@ if __FILE__ == $0
 
   puts "#{exprs.length} expressions.  Testing them all"
 
-  print_result( evaluate_expressions(exprs){|v| v >= 1 && v <= 100 && v.floor == v})
+  print_result( evaluate_expressions(exprs, filter)
+)
 
 end
+
+
+
+
+if __FILE__ == $0
+#  find_expressions(%w(4 4 4 4)){|v| v >= 1 && v <= 20 && v.floor == v}
+  find_expressions(%w(1 9 4 2)){|v| v >= 1 && v <= 100 && v.floor == v}
+end
+

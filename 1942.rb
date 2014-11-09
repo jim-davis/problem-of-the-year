@@ -75,6 +75,9 @@ def print_result(value_expressions)
     puts "#{k}: #{value_expressions[k].first}" + 
       ((value_expressions[k].length > 1) ? " plus #{value_expressions[k].length - 1} more" : "")
   end
+  found = value_expressions.keys.sort
+  missing = (1..found.max).reject {|i| found.find{|elt| elt == i}}
+  puts "Missing: #{missing.inspect}"
 end
 
 def find_expressions(digits, &filter)
@@ -91,8 +94,7 @@ def find_expressions(digits, &filter)
 
   puts "#{exprs.length} expressions.  Testing them all"
 
-  print_result( evaluate_expressions(exprs, filter)
-)
+  print_result( evaluate_expressions(exprs, filter))
 
 end
 

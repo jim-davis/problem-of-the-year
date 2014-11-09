@@ -1,11 +1,11 @@
 #!/c/Ruby193/bin/ruby
 
-# todo
-# remove duplicates
+# Todo
+# remove duplicates 
 #   sort by (normalized-form) order 
 #   normalized: use commutative to put lessor arg first.
 #   use associative law
-# print with braces only when needed
+# print should use braces only when needed
 # add Fact operator
 
 require "util"
@@ -35,7 +35,7 @@ def build_expressions(operands)
   list = []
   if operands.length == 1
     list.add(operands.first)
-    # FIXME add monadic expressions here e.g. Factorial
+    list.add(MonadicExpression.new(Fact, operands.first))
   else
     build_expressions(operands.butfirst).each do |rhs|
       list.add(BinaryExpression.new(Plus, operands.first, rhs))
@@ -65,7 +65,7 @@ def evaluate_expressions(exprs)
       else
       end
     rescue Exception => e
-      STDERR.puts e
+      STDERR.puts "Eval #{expr} caused #{e}"
     end
   end
   value_expressions

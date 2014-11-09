@@ -1,5 +1,6 @@
 class Expression
   def evaluate
+    raise RuntimeError "Called evaluate on Abstract class Expression"
   end
 end
 
@@ -30,6 +31,10 @@ class MonadicExpression < OpExpression
   def initialize(operator, operand)
     self.operator = operator
     self.operands = [operand]
+    def to_s
+      # FIXME assumes it's postfix.
+      operands[0].to_s + operator.symbol
+    end
   end
 end
 
@@ -51,6 +56,15 @@ class Operator
   end
 end
 
+class MonadicOperator < Operator
+  def evaluate(operands)
+    f.call(operands[0])
+  end
+end
+
+class PostfixOperator < MonadicOperator
+end
+
 class BinaryOperator < Operator
   def evaluate(operands)
     f.call(operands[0], operands[1])
@@ -66,12 +80,8 @@ class CommutativeOperator < BinaryOperator
   end
 end
 
-
-
 if __FILE__ == $0
-Digit.new("23").evaluate
-  #puts Plus.evaluate([1, 2])
-  expr = BinaryExpression.new(Plus, Digit.new("1"), 
-                              BinaryExpression.new(Times, Digit.new("2"), Digit.new("3")))
+  Digit.new("23").evaluate
+  expr = MonadicExpression.new(Fact, Digit.new("3"))
   puts "#{expr.to_s} == #{expr.evaluate}"
 end

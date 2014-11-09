@@ -6,7 +6,6 @@
 #   normalized: use commutative to put lessor arg first.
 #   use associative law
 # print should use braces only when needed
-# add Fact operator
 
 require "util"
 require "expressions"

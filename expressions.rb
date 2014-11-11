@@ -1,3 +1,5 @@
+require "operators"
+
 class Expression
   def evaluate
     raise RuntimeError "Called evaluate on Abstract class Expression"
@@ -10,10 +12,7 @@ class Digit < Expression
     value.to_i
   end
   def initialize(v)
-    if !v.is_a?(String)
-      binding.pry
-    end
-    self.value=v
+    self.value=v.to_i
   end
   def to_s
     value
@@ -30,7 +29,7 @@ class Digit < Expression
 end
 
 class OpExpression < Expression
-  attr_accessor :operator, :operands
+  attr_reader :operator, :operands
   def evaluate
     operator.evaluate(operands.map(&:evaluate))
   end
@@ -48,11 +47,14 @@ end
 
 class MonadicExpression < OpExpression
   def initialize(operator, operand)
-    self.operator = operator
-    self.operands = [operand]
+    @operator = operator
+    @operands = [operand]
     def to_s
-      # FIXME assumes it's postfix.
-      operands[0].to_s + operator.symbol
+      if operator.postfix?
+        "#{operands[0].to_s}#{operator.symbol}"
+      else
+        "#{operator.symbol}(#{operands[0].to_s})"
+      end
     end
   end
 
@@ -60,65 +62,36 @@ end
 
 class BinaryExpression < OpExpression
   def initialize(operator, operand1, operand2)
-    self.operator = operator
-    self.operands = [operand1, operand2]
+    @operator = operator
+    @operands = [operand1, operand2]
   end
   def to_s
+    # FIXME assumes infix
     "(#{operands[0].to_s} #{operator.symbol} #{operands[1].to_s})"
+  end
+  def lhs
+    operands[0]
+  end
+  def rhs
+    operands[1]
   end
   def eql?(o)
     o.is_a?(self.class) && 
       operator.eql?(o.operator) && 
       (operands.eql?(o.operands) || 
-       operator.is_commutative? && operands.reverse.eql?(o.operands))
+       operator.commutative? && operands.reverse.eql?(o.operands))
   end
   def hash
-    if operator.is_commutative?
-      self.class.hash ^ self.operator.hash ^ operands[0].hash ^ operands[1].hash
+    if operator.commutative?
+      self.class.hash ^ self.operator.hash ^ self.lhs.hash ^ self.rhs.hash
     else
-      self.class.hash ^ self.operator.hash ^ operands.hash
+      self.class.hash ^ self.operator.hash ^ self.operands.hash
     end
   end
 
 end
 
-class Operator
-  attr_accessor :symbol, :f
-  def initialize(symbol, f)
-    self.symbol = symbol
-    self.f = f
-  end
-end
-
-class MonadicOperator < Operator
-  def evaluate(operands)
-    f.call(operands[0])
-  end
-  def acceptable_operand?(x)
-    true
-  end
-end
-
-class PostfixOperator < MonadicOperator
-end
-
-class BinaryOperator < Operator
-  def evaluate(operands)
-    f.call(operands[0], operands[1])
-  end
-  def is_commutative?
-    false
-  end
-end
-
-class CommutativeOperator < BinaryOperator
-  def is_commutative?
-    true
-  end
-end
-
 if __FILE__ == $0
-  Digit.new("23").evaluate
-  expr = MonadicExpression.new(Fact, Digit.new("3"))
+  expr = MonadicExpression.new(Fact, Digit.new(3))
   puts "#{expr.to_s} == #{expr.evaluate}"
 end

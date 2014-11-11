@@ -33,27 +33,45 @@ end
 
 # given a list of operands return all possible expressions
 def build_expressions(operands)
+  right_associative_tree(operands) + left_associative_tree(operands)
+end
+
+def right_associative_tree(operands)
   list = []
   if operands.length == 1
     list.add(operands.first)
     list.add(MonadicExpression.new(Fact, operands.first))
   else
+    lhs = operands.first
     build_expressions(operands.butfirst).each do |rhs|
-      list.add(BinaryExpression.new(Plus, operands.first, rhs))
-      list.add(BinaryExpression.new(Times, operands.first, rhs))
-      list.add(BinaryExpression.new(Minus, operands.first, rhs))
-      list.add(BinaryExpression.new(Divide, operands.first, rhs))
-      list.add(BinaryExpression.new(Expt, operands.first, rhs))
+      list.add(BinaryExpression.new(Plus, lhs, rhs))
+      list.add(BinaryExpression.new(Times, lhs, rhs))
+      list.add(BinaryExpression.new(Minus, lhs, rhs))
+      list.add(BinaryExpression.new(Divide, lhs, rhs))
+      list.add(BinaryExpression.new(Expt, lhs, rhs))
     end
   end
   list
 end
 
-# True if the value is one of the ones we care about
-# a whole number between 1 and 100 inclusive
-def interesting?(v)
-  v >= 1 && v <= 100 && v.floor == v
+def left_associative_tree(operands)
+  list = []
+  if operands.length == 1
+    list.add(operands.first)
+    list.add(MonadicExpression.new(Fact, operands.first))
+  else
+    rhs = operands.pop
+    build_expressions(operands).each do |lhs|
+      list.add(BinaryExpression.new(Plus, lhs, rhs))
+      list.add(BinaryExpression.new(Times, lhs, rhs))
+      list.add(BinaryExpression.new(Minus, lhs, rhs))
+      list.add(BinaryExpression.new(Divide, lhs, rhs))
+      list.add(BinaryExpression.new(Expt, lhs, rhs))
+    end
+  end
+  list
 end
+
 
 def evaluate_expressions(exprs, filter)
   value_expressions = Hash.new{|h, k| h[k]=[]}

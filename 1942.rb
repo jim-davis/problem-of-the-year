@@ -7,6 +7,8 @@
 #   use associative law
 # print should use braces only when needed
 
+$LOAD_PATH << Dir.pwd
+
 require "util"
 require "expressions"
 require "operators"
@@ -29,7 +31,7 @@ def lexical_combinations(operands)
   end
 end
 
-# given a list of expressions, operands return all possible expressions
+# given a list of operands return all possible expressions
 def build_expressions(operands)
   list = []
   if operands.length == 1

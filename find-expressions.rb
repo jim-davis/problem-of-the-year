@@ -42,7 +42,10 @@ def right_associative_tree(operands)
   list = []
   if operands.length == 1
     list.add(operands.first)
-    list.add(MonadicExpression.new(Fact, operands.first))
+    # FIXME this is tasteless and repeated
+    if !(operands.first.is_a?(Digit) && (operands.first.value == "1" || operands.first.value == "2"))
+      list.add(MonadicExpression.new(Fact, operands.first))
+    end
   else
     lhs = operands.first
     build_expressions(operands.butfirst).each do |rhs|
@@ -60,7 +63,9 @@ def left_associative_tree(operands)
   list = []
   if operands.length == 1
     list.add(operands.first)
-    list.add(MonadicExpression.new(Fact, operands.first))
+    if !(operands.first.is_a?(Digit) && (operands.first.value == "1" || operands.first.value == "2"))
+      list.add(MonadicExpression.new(Fact, operands.first))
+    end
   else
     rhs = operands.pop
     build_expressions(operands).each do |lhs|

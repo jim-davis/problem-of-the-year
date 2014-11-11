@@ -14,6 +14,8 @@ require "expressions"
 require "operators"
 require "pry"
 
+@verbose = false
+
 # Given a list of strings, e.g. ["1", "2", "3"]
 # return all the ways these can be combined as strings
 # e.g. [["1", "2", "3"] (no combination), ["1", "23"], ["12", "3"], ["123"]]
@@ -90,6 +92,30 @@ def evaluate_expressions(exprs, filter)
   value_expressions
 end
 
+
+def find_expressions(digits, filter)
+  p = digits.permutation
+  puts "#{p.count} permutations of the digits" if @verbose
+
+  # all possible operand sequences
+  lc = p.collect_concat{|sequence| lexical_combinations(sequence)}
+
+  operands = lc.map{|l| l.map{|d| Digit.new(d)}}
+  puts "#{operands.length} operand sequences" if @verbose
+
+  exprs = operands.collect_concat{|o| build_expressions(o)}
+
+  exprs.uniq!
+  puts "#{exprs.length} unique expressions" if @verbose
+
+  evaluate_expressions(exprs, filter)
+
+end
+
+def solve(digits, &filter)
+  print_result(find_expressions(digits, filter))
+end
+
 def print_result(value_expressions)
   value_expressions.keys.sort.each do |k|
     puts "#{k}: #{value_expressions[k].first}" + 
@@ -97,32 +123,51 @@ def print_result(value_expressions)
   end
   found = value_expressions.keys.sort
   missing = (1..found.max).reject {|i| found.find{|elt| elt == i}}
-  puts "Missing: #{missing.inspect}"
+  if missing.length > 0
+    puts "Missing: #{missing.inspect}"
+  end
 end
-
-def find_expressions(digits, &filter)
-  p = digits.permutation
-  puts "#{p.count} permutations of the digits"
-
-  # all possible operand sequences
-  lc = p.collect_concat{|sequence| lexical_combinations(sequence)}
-
-  operands = lc.map{|l| l.map{|d| Digit.new(d)}}
-  puts "#{operands.length} operand sequences"
-
-  exprs = operands.collect_concat{|o| build_expressions(o)}
-
-  puts "#{exprs.length} expressions.  Testing them all"
-
-  print_result( evaluate_expressions(exprs, filter))
-
-end
-
-
 
 
 if __FILE__ == $0
-#  find_expressions(%w(4 4 4 4)){|v| v >= 1 && v <= 20 && v.floor == v}
-  find_expressions(%w(1 9 4 2)){|v| v >= 1 && v <= 100 && v.floor == v}
+
+  require 'optparse'
+
+  options = {max: 100,
+    digits: %w(1 2 4 9),
+    only: nil
+  }
+
+  OptionParser.new do |opts|
+    opts.banner = "Usage: find-expressions.rb [options]"
+
+    opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+      options[:verbose] = v
+    end
+
+    opts.on("--max M", "max number to solve for") do |v|
+      options[:max] = v.to_i
+    end
+    opts.on("--digits 1234", "digits to use") do |v|
+      options[:digits] = v.split("")
+    end
+    opts.on("--only D", "show only solutions for D") do |v|
+      options[:only] = v.to_i
+    end
+    opts.on_tail("-h", "--help", "Show this message") do
+      puts opts
+      exit
+    end
+
+  end.parse!
+
+  r = find_expressions( options[:digits], Proc.new{|v| v >= 1 && v <= options[:max] && v.floor == v})
+
+  if options[:only]
+    r[options[:only]].each{|expr| puts expr.to_s}
+  else
+    print_result(r)
+  end
+
 end
 

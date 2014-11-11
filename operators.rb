@@ -8,9 +8,11 @@ Divide = BinaryOperator.new("/", Proc.new {|op1, op2| Float(op1) / op2})
 def safe_expt(op1, op2)
   if op2 > 10
     raise ArgumentError.new("Exponent power #{op2} too large")
-  else
-    op1 ** op2
   end
+  if op1 * op2 > 20
+    raise ArgumentError.new("Exponent #{op1} power #{op2} too large")
+  end
+  op1 ** op2
 end
 
 Expt = BinaryOperator.new("expt", Proc.new {|op1, op2| safe_expt(op1, op2)})
@@ -27,6 +29,3 @@ def factorial(x)
   end
   x == 1 ? 1 : x * factorial(x-1)
 end
-
-
-

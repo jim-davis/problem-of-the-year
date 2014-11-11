@@ -18,6 +18,15 @@ class Digit < Expression
   def to_s
     value
   end
+
+  def eql?(o)
+    o.is_a?(Digit) && o.value == self.value
+  end
+
+  def hash
+    value.hash
+  end
+  
 end
 
 class OpExpression < Expression
@@ -25,6 +34,16 @@ class OpExpression < Expression
   def evaluate
     operator.evaluate(operands.map(&:evaluate))
   end
+
+  def eql?(o)
+    o.is_a?(self.class) && 
+      operator.eql?(o.operator) && 
+      operands.eql?(o.operands)
+  end
+  def hash
+    self.class.hash ^ self.operator.hash ^ operands.hash
+  end
+  
 end
 
 class MonadicExpression < OpExpression
@@ -36,6 +55,7 @@ class MonadicExpression < OpExpression
       operands[0].to_s + operator.symbol
     end
   end
+
 end
 
 class BinaryExpression < OpExpression

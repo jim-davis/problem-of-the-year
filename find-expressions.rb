@@ -161,6 +161,8 @@ if __FILE__ == $0
 
   end.parse!
 
+  @verbose = options[:verbose]
+
   r = find_expressions( options[:digits], Proc.new{|v| v >= 1 && v <= options[:max] && v.floor == v})
 
   if options[:only]

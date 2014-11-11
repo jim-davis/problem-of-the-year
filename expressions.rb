@@ -66,6 +66,20 @@ class BinaryExpression < OpExpression
   def to_s
     "(#{operands[0].to_s} #{operator.symbol} #{operands[1].to_s})"
   end
+  def eql?(o)
+    o.is_a?(self.class) && 
+      operator.eql?(o.operator) && 
+      (operands.eql?(o.operands) || 
+       operator.is_commutative? && operands.reverse.eql?(o.operands))
+  end
+  def hash
+    if operator.is_commutative?
+      self.class.hash ^ self.operator.hash ^ operands[0].hash ^ operands[1].hash
+    else
+      self.class.hash ^ self.operator.hash ^ operands.hash
+    end
+  end
+
 end
 
 class Operator

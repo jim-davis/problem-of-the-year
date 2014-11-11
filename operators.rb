@@ -20,6 +20,13 @@ Expt = BinaryOperator.new("expt", Proc.new {|op1, op2| safe_expt(op1, op2)})
 
 Fact = PostfixOperator.new("!", Proc.new { |op| factorial(op)})
 
+class << Fact
+  def acceptable_operand? (x)
+    ! (x.is_a?(Digit) && (x.value == "1" || x.value == "2"))
+  end
+end
+
+
 def factorial(x) 
   if x < 1 || !x.is_a?(Fixnum)
     raise ArgumentError.new("factorial is only defined on whole numbers > 0, not #{x}")

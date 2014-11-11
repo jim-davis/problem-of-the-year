@@ -94,6 +94,9 @@ class MonadicOperator < Operator
   def evaluate(operands)
     f.call(operands[0])
   end
+  def acceptable_operand?(x)
+    true
+  end
 end
 
 class PostfixOperator < MonadicOperator

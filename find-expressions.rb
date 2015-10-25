@@ -27,9 +27,9 @@ def lexical_combinations(operands)
     lexical_combinations(operands.butfirst).each do |tail|
       l.add([digit] + tail)     # keep separate or
       l.add([digit + tail.first] + tail.butfirst) # combine first and second
-      end
-    l
+    end
   end
+  l
 end
 
 # given a list of operands return all possible expressions over those operands

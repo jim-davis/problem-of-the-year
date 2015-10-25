@@ -60,10 +60,13 @@ end
 
 #------------
 
+binary_operators = []
+
 Plus = BinaryOperator.new("+", Proc.new {|op1, op2| op1 + op2}, :IN, true, true)
 Times = BinaryOperator.new("x", Proc.new {|op1, op2| op1 * op2}, :IN, true, true)
 Minus = BinaryOperator.new("-", Proc.new {|op1, op2| op1 - op2}, :IN, false, false)
 Divide = BinaryOperator.new("/", Proc.new {|op1, op2| Float(op1) / op2}, :IN, false, false)
+
 
 class << Plus
   @inverse = Minus
@@ -81,6 +84,10 @@ class << Divide
   @inverse = Times
 end
 
+binary_operators << Plus
+binary_operators << Times
+binary_operators << Minus
+binary_operators << Divide
 
 Expt = BinaryOperator.new("**", Proc.new {|op1, op2| safe_expt(op1, op2)}, :IN)
 
@@ -98,6 +105,8 @@ end
 class << Expt
 end
 
+binary_operators << Expt
+
 Log = BinaryOperator.new("log", Proc.new {|n, base| safe_log(base, n)}, :PRE)
 
 def safe_log(base, n)
@@ -110,12 +119,15 @@ end
 class << Log
 end
 
+# binary_operators << Log
 Mod = BinaryOperator.new("mod", Proc.new {|n, base| n % base}, :PRE)
 
 class << Mod
 end
 
-BINARY_OPERATORS = [Plus, Times, Minus, Divide, Expt, Log]
+#binary_operators << Mod
+
+BINARY_OPERATORS = binary_operators
 
 Fact = MonadicOperator.new("!", Proc.new { |op| factorial(op)}, :POST)
 

@@ -34,9 +34,9 @@ class MonadicOperator < Operator
   end
   def expression_string(operand)
     if postfix?
-      "#{operand}#{@symbol}"
+      "#{operand.to_s}#{@symbol}"
     else
-      "#{@symbol}(#{operand}))"
+      "#{@symbol}(#{operand.to_s}))"
     end
   end
 end
@@ -47,6 +47,14 @@ class BinaryOperator < Operator
   end
   def noop?(x, y)
     false
+  end
+  def expression_string(operand1, operand2)
+    if prefix?
+      "#{@symbol}((#{operand1.to_s},#{operand2.to_s}))"
+    else
+      # Fixme should only use parenthesis if required by precedence
+      "(#{operand1.to_s} #{@symbol} #{operand2.to_s})"
+    end
   end
 end
 
@@ -74,7 +82,7 @@ class << Divide
 end
 
 
-Expt = BinaryOperator.new("**", Proc.new {|op1, op2| safe_expt(op1, op2)}, :PRE)
+Expt = BinaryOperator.new("**", Proc.new {|op1, op2| safe_expt(op1, op2)}, :IN)
 
 def safe_expt(op1, op2)
   if op2 > 10
@@ -88,9 +96,6 @@ end
 
 # true that 1^n is 1, but sometimes you need to get rid of a digit
 class << Expt
-  def noop? (x, y)
-    #x.is_a?(Digit) && x.value == 1
-  end
 end
 
 Log = BinaryOperator.new("log", Proc.new {|n, base| safe_log(base, n)}, :PRE)
@@ -103,20 +108,14 @@ def safe_log(base, n)
 end
 
 class << Log
-  def noop? (n, base)
-    base.is_a?(Digit) && base.value <= 1
-  end
 end
 
 Mod = BinaryOperator.new("mod", Proc.new {|n, base| n % base}, :PRE)
 
 class << Mod
-  def noop? (x, y)
-    y.is_a?(Digit) && y.value <= 1
-  end
 end
 
-BINARY_OPERATORS = [Plus, Times, Minus, Divide, Expt]
+BINARY_OPERATORS = [Plus, Times, Minus, Divide, Expt, Log]
 
 Fact = MonadicOperator.new("!", Proc.new { |op| factorial(op)}, :POST)
 

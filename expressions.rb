@@ -6,6 +6,9 @@ class Expression
   end
 end
 
+# An Expression is either Digit or an operator expression
+# We are allowed to combine digits by string concatentation (e.g. "1" &  "8" == "18")
+
 class Digit < Expression
   attr_accessor :value
   def evaluate
@@ -50,7 +53,7 @@ class MonadicExpression < OpExpression
     @operator = operator
     @operands = [operand]
     def to_s
-      @operator.expression_string(@operands[0].to_s)
+      @operator.expression_string(@operands[0])
     end
   end
 end
@@ -61,8 +64,7 @@ class BinaryExpression < OpExpression
     @operands = [operand1, operand2]
   end
   def to_s
-    # FIXME assumes infix
-    "(#{operands[0].to_s} #{operator.symbol} #{operands[1].to_s})"
+    @operator.expression_string(@operands[0], @operands[1])
   end
   def lhs
     operands[0]

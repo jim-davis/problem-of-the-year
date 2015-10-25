@@ -50,14 +50,9 @@ class MonadicExpression < OpExpression
     @operator = operator
     @operands = [operand]
     def to_s
-      if operator.postfix?
-        "#{operands[0].to_s}#{operator.symbol}"
-      else
-        "#{operator.symbol}(#{operands[0].to_s})"
-      end
+      @operator.expression_string(@operands[0].to_s)
     end
   end
-
 end
 
 class BinaryExpression < OpExpression

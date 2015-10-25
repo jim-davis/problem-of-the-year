@@ -32,6 +32,13 @@ class MonadicOperator < Operator
   def noop?(x)
     false
   end
+  def expression_string(operand)
+    if postfix?
+      "#{operand}#{@symbol}"
+    else
+      "#{@symbol}(#{operand}))"
+    end
+  end
 end
 
 class BinaryOperator < Operator
@@ -79,9 +86,33 @@ def safe_expt(op1, op2)
   op1 ** op2
 end
 
+# true that 1^n is 1, but sometimes you need to get rid of a digit
 class << Expt
   def noop? (x, y)
-    x.is_a?(Digit) && x.value == 1
+    #x.is_a?(Digit) && x.value == 1
+  end
+end
+
+Log = BinaryOperator.new("log", Proc.new {|n, base| safe_log(base, n)}, :PRE)
+
+def safe_log(base, n)
+  if base < 1
+    raise RangeError.new("Log Base must be >= 1")
+  end
+  Math.log(n, base)
+end
+
+class << Log
+  def noop? (n, base)
+    base.is_a?(Digit) && base.value <= 1
+  end
+end
+
+Mod = BinaryOperator.new("mod", Proc.new {|n, base| n % base}, :PRE)
+
+class << Mod
+  def noop? (x, y)
+    y.is_a?(Digit) && y.value <= 1
   end
 end
 
@@ -112,4 +143,14 @@ class << Sqrt
   end
 end
 
-MONADIC_OPERATORS = [Fact, Sqrt]
+Abs = MonadicOperator.new("|", Proc.new { |op| Math.abs(op) }, :PRE)
+class << Abs
+  def noop? (x)
+    x.is_a?(Digit) && x.value >= 0
+  end
+  def expression_string (operand)
+    "|#{operand}|"
+  end
+end
+
+MONADIC_OPERATORS = [Fact, Sqrt, Abs]

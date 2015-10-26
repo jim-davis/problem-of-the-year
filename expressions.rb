@@ -4,6 +4,9 @@ class Expression
   def evaluate
     raise RuntimeError "Called evaluate on Abstract class Expression"
   end
+  def depth
+    0
+  end
 end
 
 # An Expression is either Digit or an operator expression
@@ -55,6 +58,9 @@ class MonadicExpression < OpExpression
     def to_s
       @operator.expression_string(@operands[0])
     end
+    def depth
+      1 + @operands[0].depth
+    end
   end
 end
 
@@ -65,6 +71,9 @@ class BinaryExpression < OpExpression
   end
   def to_s
     @operator.expression_string(@operands[0], @operands[1])
+  end
+  def depth
+    1 + @operands[0].depth > @operands[1].depth ? @operands[0].depth : @operands[1].depth
   end
   def lhs
     operands[0]

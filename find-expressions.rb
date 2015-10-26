@@ -15,23 +15,6 @@ require "operators"
 
 @verbose = false
 
-# Given a list of strings, e.g. ["1", "2", "3"]
-# return all the ways these can be combined as strings
-# e.g. [["1", "2", "3"] (no combination), ["1", "23"], ["12", "3"], ["123"]]
-def lexical_combinations(operands)
-  l = []
-  if operands.length == 1
-    l.add(operands)
-  else
-    digit = operands.first
-    lexical_combinations(operands.butfirst).each do |tail|
-      l.add([digit] + tail)     # keep separate or
-      l.add([digit + tail.first] + tail.butfirst) # combine first and second
-    end
-  end
-  l
-end
-
 # given a list of operands return all possible expressions over those operands
 def build_expressions(operands)
   right_associative_tree(operands) + left_associative_tree(operands)
@@ -54,9 +37,7 @@ def right_associative_tree(operands)
     lhs = operands.first
     build_expressions(operands.butfirst).each do |rhs|
       BINARY_OPERATORS.each do |op|
-        if !op.noop?(lhs, rhs)
-          list.add(BinaryExpression.new(op, lhs, rhs))
-        end
+        list.add(BinaryExpression.new(op, lhs, rhs))
       end
     end
   end
@@ -77,9 +58,7 @@ def left_associative_tree(operands)
     rhs = operands.pop
     build_expressions(operands).each do |lhs|
       BINARY_OPERATORS.each do |op|
-        if !op.noop?(lhs, rhs)
-          list.add(BinaryExpression.new(op, lhs, rhs))
-        end
+        list.add(BinaryExpression.new(op, lhs, rhs))
       end
     end
   end
@@ -87,7 +66,7 @@ def left_associative_tree(operands)
 end
 
 # Given a list of expressions, evaluate them
-# filtering for those whoe value passes the filter
+# filtering for those whose value passes the filter
 # Return a hash where the key is a whole number
 # and the value is the set of expressions that produce that value.
 def evaluate_expressions(exprs, filter)
@@ -141,10 +120,11 @@ def print_result(value_expressions)
     puts "No solutions!"
   else
     value_expressions.keys.sort.each do |k|
-      puts "#{k}: #{value_expressions[k].first}" + 
+      expressions = value_expressions[k].sort_by{|e| e.depth}
+      puts "#{k}: #{expressions.first}" + 
         ((value_expressions[k].length > 1) ? " plus #{value_expressions[k].length - 1} more" : "")
     end
-    found = value_expressions.keys.sort
+    found = value_expressions.keys
     missing = (1..found.max).reject {|i| found.find{|elt| elt == i}}
     if missing.length > 0
       puts "Missing: #{missing.inspect}"

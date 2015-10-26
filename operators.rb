@@ -123,7 +123,10 @@ binary_operators << Expt
 Log = BinaryOperator.new("log", 5, Proc.new {|n, base| safe_log(base, n)}, :PRE)
 
 def safe_log(base, n)
-  if base < 1
+  if n <= 0 
+    raise RangeError.new("log power must be positive")
+  end
+  if base < 1 && n != 1
     raise RangeError.new("Log Base must be >= 1")
   end
   Math.log(n, base)
@@ -132,7 +135,7 @@ end
 class << Log
 end
 
-# binary_operators << Log
+binary_operators << Log
 Mod = BinaryOperator.new("mod", 5, Proc.new {|n, base| safe_mod(n, base)}, :PRE)
 
 def safe_mod(n, base)

@@ -174,7 +174,7 @@ if __FILE__ == $0
   r = find_expressions( options[:digits], Proc.new{|v| v >= 1 && v <= options[:max] && v.floor == v})
 
   if options[:only]
-    r[options[:only]].each{|expr| puts expr.to_s}
+    r[options[:only]].sort_by{|e| e.depth}.each{|expr| puts expr.to_s}
   else
     print_result(r)
   end

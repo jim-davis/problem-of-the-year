@@ -47,9 +47,11 @@ describe "lexical_combinations" do
   describe "with list of 3" do
     it "returns as expected" do
       arr = ["a", "b", "c"]
-      expected = [["a", "b", "c"], ["a", "bc"], ["b", "ac"], ["c", "ab"], ["abc"]]
-      expect(lexical_combinations(arr)).to eql(expected)
+      expected = [["abc"], ["a", "bc"], ["ab", "c"], ["ac", "b"], ["a", "b", "c"]]
+      result = lexical_combinations(arr).map{|x| x.sort}.sort{|a,b| a.length == b.length ? a[0] <=> b[0] : a.length <=> b.length}
+      expect(result).to eql(expected)
     end
   end
   
 end
+

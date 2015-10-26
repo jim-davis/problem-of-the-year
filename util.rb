@@ -22,10 +22,12 @@ def lexical_combinations(strings)
     if strings.length == 1
       l.add(strings)
     else
-      digit = strings.first
-      lexical_combinations(strings.butfirst).each do |tail|
-        l.add([digit] + tail)     # keep separate or
-        l.add([digit + tail.first] + tail.butfirst) # combine first and second
+      s = strings.first
+      lexical_combinations(strings.butfirst).each do |subcombo|
+        l.add([s] + subcombo)     # keep separate
+        subcombo.each do |str|
+            l.add([s + str] + subcombo.except(str))
+        end
       end
     end
   end

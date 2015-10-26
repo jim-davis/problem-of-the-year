@@ -116,3 +116,11 @@ describe "Abs" do
   end
 end
 
+describe "Fact" do
+  describe "#evaluate" do
+    it "computes factorial" do
+      expect(Fact.evaluate([5])).to eq(5 * 4 * 3 * 2)
+    end
+  end
+end
+

@@ -121,12 +121,19 @@ class << Log
 end
 
 # binary_operators << Log
-Mod = BinaryOperator.new("mod", Proc.new {|n, base| n % base}, :PRE)
+Mod = BinaryOperator.new("mod", Proc.new {|n, base| safe_mod(n, base)}, :PRE)
 
+def safe_mod(n, base)
+  if base <= 0
+    raise RangeError.new("Mod base must be positive")
+  end
+  n % base
+end
+    
 class << Mod
 end
 
-#binary_operators << Mod
+binary_operators << Mod
 
 BINARY_OPERATORS = binary_operators
 

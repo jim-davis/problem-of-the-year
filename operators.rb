@@ -36,7 +36,7 @@ class MonadicOperator < Operator
     if postfix?
       "#{operand.to_s}#{@symbol}"
     else
-      "#{@symbol}(#{operand.to_s}))"
+      "#{@symbol}(#{operand.to_s})"
     end
   end
 end

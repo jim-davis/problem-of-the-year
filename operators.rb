@@ -50,7 +50,7 @@ class BinaryOperator < Operator
   end
   def expression_string(operand1, operand2)
     if prefix?
-      "#{@symbol}((#{operand1.to_s},#{operand2.to_s}))"
+      "#{@symbol}(#{operand1.to_s},#{operand2.to_s})"
     else
       # Fixme should only use parenthesis if required by precedence
       "(#{operand1.to_s} #{@symbol} #{operand2.to_s})"
@@ -107,6 +107,7 @@ end
 
 binary_operators << Expt
 
+
 Log = BinaryOperator.new("log", Proc.new {|n, base| safe_log(base, n)}, :PRE)
 
 def safe_log(base, n)
@@ -154,7 +155,7 @@ class << Sqrt
   end
 end
 
-Abs = MonadicOperator.new("|", Proc.new { |op| Math.abs(op) }, :PRE)
+Abs = MonadicOperator.new("|", Proc.new { |op| op.abs }, :PRE)
 class << Abs
   def noop? (x)
     x.is_a?(Digit) && x.value >= 0

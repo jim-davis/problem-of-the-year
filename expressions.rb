@@ -73,7 +73,7 @@ class BinaryExpression < OpExpression
     @operator.expression_string(@operands[0], @operands[1])
   end
   def depth
-    1 + @operands[0].depth > @operands[1].depth ? @operands[0].depth : @operands[1].depth
+    1 + @operands.map{|o| o.depth}.max
   end
   def lhs
     operands[0]

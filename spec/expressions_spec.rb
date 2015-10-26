@@ -6,6 +6,11 @@ describe Digit do
     d = Digit.new("0")
     expect(d.depth).to eq(0)
   end
+  describe "#to_s" do
+    it "is just the value" do
+      expect(Digit.new("0").to_s).to eq("0")
+    end
+  end
 end
 
 describe MonadicExpression do

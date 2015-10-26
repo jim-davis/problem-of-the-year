@@ -1,7 +1,8 @@
 class Operator
   attr_reader :symbol, :f, :inverse
-  def initialize(symbol, f, op_position, associative=false, commutative=false, inverse=nil)
+  def initialize(symbol, precedence, f, op_position, associative=false, commutative=false, inverse=nil)
     @symbol = symbol
+    @precedence = precedence
     @f = f
     @op_position = op_position
     @is_associative = associative 
@@ -32,11 +33,14 @@ class MonadicOperator < Operator
   def noop?(x)
     false
   end
-  def expression_string(operand)
+  def expression_string(parent_precedence, operand)
     if postfix?
-      "#{operand.to_s}#{@symbol}"
+      operand.stringify(@precedence) + @symbol
     else
-      "#{@symbol}(#{operand.to_s})"
+      @symbol +
+        "(" +
+        operand.stringify(@precedence) +
+        ")"
     end
   end
 end
@@ -48,12 +52,20 @@ class BinaryOperator < Operator
   def noop?(x, y)
     false
   end
-  def expression_string(operand1, operand2)
+  def expression_string(parent_precedence, operand1, operand2)
     if prefix?
-      "#{@symbol}(#{operand1.to_s},#{operand2.to_s})"
+      @symbol + 
+        "(" + 
+        operand1.stringify(@precedence) + 
+        "," +
+        operand2.stringify(@precedence) +
+        ")"
     else
-      # Fixme should only use parenthesis if required by precedence
-      "(#{operand1.to_s} #{@symbol} #{operand2.to_s})"
+      (parent_precedence > @precedence ? "(" : "") + 
+        operand1.stringify(@precedence) +
+        " " + @symbol + " " +
+        operand2.stringify(@precedence) +
+        (parent_precedence > @precedence ? ")" : "")
     end
   end
 end
@@ -62,10 +74,10 @@ end
 
 binary_operators = []
 
-Plus = BinaryOperator.new("+", Proc.new {|op1, op2| op1 + op2}, :IN, true, true)
-Times = BinaryOperator.new("x", Proc.new {|op1, op2| op1 * op2}, :IN, true, true)
-Minus = BinaryOperator.new("-", Proc.new {|op1, op2| op1 - op2}, :IN, false, false)
-Divide = BinaryOperator.new("/", Proc.new {|op1, op2| Float(op1) / op2}, :IN, false, false)
+Plus = BinaryOperator.new("+", 1, Proc.new {|op1, op2| op1 + op2}, :IN, true, true)
+Times = BinaryOperator.new("x", 2, Proc.new {|op1, op2| op1 * op2}, :IN, true, true)
+Minus = BinaryOperator.new("-", 0, Proc.new {|op1, op2| op1 - op2}, :IN, false, false)
+Divide = BinaryOperator.new("/", 3, Proc.new {|op1, op2| Float(op1) / op2}, :IN, false, false)
 
 
 class << Plus
@@ -89,7 +101,7 @@ binary_operators << Times
 binary_operators << Minus
 binary_operators << Divide
 
-Expt = BinaryOperator.new("**", Proc.new {|op1, op2| safe_expt(op1, op2)}, :IN)
+Expt = BinaryOperator.new("**", 4, Proc.new {|op1, op2| safe_expt(op1, op2)}, :IN)
 
 def safe_expt(op1, op2)
   if op2 > 10
@@ -108,7 +120,7 @@ end
 binary_operators << Expt
 
 
-Log = BinaryOperator.new("log", Proc.new {|n, base| safe_log(base, n)}, :PRE)
+Log = BinaryOperator.new("log", 5, Proc.new {|n, base| safe_log(base, n)}, :PRE)
 
 def safe_log(base, n)
   if base < 1
@@ -121,7 +133,7 @@ class << Log
 end
 
 # binary_operators << Log
-Mod = BinaryOperator.new("mod", Proc.new {|n, base| safe_mod(n, base)}, :PRE)
+Mod = BinaryOperator.new("mod", 5, Proc.new {|n, base| safe_mod(n, base)}, :PRE)
 
 def safe_mod(n, base)
   if base <= 0
@@ -137,7 +149,7 @@ binary_operators << Mod
 
 BINARY_OPERATORS = binary_operators
 
-Fact = MonadicOperator.new("!", Proc.new { |op| factorial(op)}, :POST)
+Fact = MonadicOperator.new("!", 6, Proc.new { |op| factorial(op)}, :POST)
 
 class << Fact
   def noop? (x)
@@ -155,14 +167,14 @@ def factorial(x)
   x == 1 ? 1 : x * factorial(x-1)
 end
 
-Sqrt = MonadicOperator.new("sqrt", Proc.new { |op| Math.sqrt(op) }, :PRE)
+Sqrt = MonadicOperator.new("sqrt", 6, Proc.new { |op| Math.sqrt(op) }, :PRE)
 class << Sqrt
   def noop? (x)
     x.is_a?(Digit) && x.value == 1
   end
 end
 
-Abs = MonadicOperator.new("|", Proc.new { |op| op.abs }, :PRE)
+Abs = MonadicOperator.new("|", 6, Proc.new { |op| op.abs }, :PRE)
 class << Abs
   def noop? (x)
     x.is_a?(Digit) && x.value >= 0

@@ -4,23 +4,22 @@
 # remove duplicates 
 #   normalized: use commutative to put lessor arg first.
 #   use associative law
-# print should use braces only when needed
 
 $LOAD_PATH << Dir.pwd
 
 require "util"
 require "expressions"
 require "operators"
-#require "pry"
 
 @verbose = false
 
 # given a list of operands return all possible expressions over those operands
+# using the hardcoded list of operators
 def build_expressions(operands)
   right_associative_tree(operands) + left_associative_tree(operands)
 end
 
-#FIXME.  It's very ugly how much repetition is in  right_associative_tree
+#FIXME.  It's very ugly how much repetition is in right_associative_tree
 # and left associative tree.  They only differ in whether the traverse the list fwd or back
 
 def right_associative_tree(operands)

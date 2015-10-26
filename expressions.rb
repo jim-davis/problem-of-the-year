@@ -21,9 +21,12 @@ class Digit < Expression
     self.value=v.to_i
   end
   def to_s
-    value
+    value.to_s
   end
-
+  def stringify(parent_precedence)
+    # precedence is not significant to a digit
+    to_s
+  end
   def eql?(o)
     o.is_a?(Digit) && o.value == self.value
   end
@@ -56,7 +59,10 @@ class MonadicExpression < OpExpression
     @operator = operator
     @operands = [operand]
     def to_s
-      @operator.expression_string(@operands[0])
+      stringify(-1)
+    end
+    def stringify(parent_precedence)
+      @operator.expression_string(parent_precedence, @operands[0])
     end
     def depth
       1 + @operands[0].depth
@@ -70,7 +76,10 @@ class BinaryExpression < OpExpression
     @operands = [operand1, operand2]
   end
   def to_s
-    @operator.expression_string(@operands[0], @operands[1])
+    stringify(-1)
+  end
+  def stringify(parent_precedence)
+    @operator.expression_string(parent_precedence, @operands[0], @operands[1])
   end
   def depth
     1 + @operands.map{|o| o.depth}.max

@@ -93,11 +93,8 @@ end
 # value is the set of expressions (constructed using only those digits)
 # that evaluate to that number
 def find_expressions(digits, filter)
-  p = digits.permutation
-  puts "#{p.count} permutations of the digits" if @verbose
-
   # all possible operand sequences.  We can combine digits, e.g. "2" and "3" make "23"
-  lc = p.collect_concat{|sequence| lexical_combinations(sequence)}
+  lc = lexical_combinations(digits)
   operands = lc.map{|l| l.map{|d| Digit.new(d)}}
   puts "#{operands.length} operand sequences" if @verbose
 

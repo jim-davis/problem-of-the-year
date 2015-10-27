@@ -13,25 +13,25 @@ class Array
   end
 end
 
-# Given a list of strings, e.g. ["1", "2", "3"]
-# return all the ways these can be combined as strings
-# e.g. [["1", "2", "3"] (no combination), ["1", "23"], ["12", "3"], ["123"]]
+# Given a set of strings, 
+# return the set of all sets 
+# that can be formed by combining those strings in any order
+# e.g. for three elements ["1", "2", "3"]
+# ["1", "2", "3"] (and all permutations)
+# plus six ["1", "23"], ["1", "32"], ["2", "13"], etc
+# plus six more ["123"], ["132"]  etc
 def lexical_combinations(strings)
   l = []
-  if strings.length > 0
-    if strings.length == 1
-      l.add(strings)
-    else
-      s = strings.first
-      lexical_combinations(strings.butfirst).each do |subcombo|
-        l.add([s] + subcombo)     # keep separate
-        subcombo.each do |str|
-            l.add([s + str] + subcombo.except(str))
-        end
+  if strings.length == 1
+    l.add(strings)
+  else
+    strings.each do |letter|
+      others = strings.except(letter)
+      lexical_combinations(others).each do |subcombo|
+        l.add([letter] + subcombo)
+        l.add([letter + subcombo.first] + subcombo.butfirst)
       end
     end
   end
   l
 end
-
-

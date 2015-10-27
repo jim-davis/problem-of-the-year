@@ -13,15 +13,24 @@ describe Array do
     describe "if the element is present" do
       it "returns array without the element" do
         arr = [0,1,2,4] 
+        expect(arr.except(1)).to eql([0,2,4])
+      end
+    end
+    describe "if the array has only one element" do
+      it "returns empty array" do
+        arr = ["a"]
+        expect(arr.except("a")).to eql([])
       end
     end
   end
+
   describe "butfirst" do
     it "returns all but the first element" do
       arr = [0,1,2,3]
       expect(arr.butfirst.length).to eq(3)
     end
   end
+
 end
 
 describe "lexical_combinations" do
@@ -40,17 +49,24 @@ describe "lexical_combinations" do
   describe "with list of 2" do
     it "returns two results" do
       arr = ["a", "b"]
-      expected = [["a", "b"], ["ab"]]
+      expected = [["a", "b"], ["ab"], ["b", "a"],  ["ba"]]
       expect(lexical_combinations(arr)).to eql(expected)
     end
   end
   describe "with list of 3" do
     it "returns as expected" do
       arr = ["a", "b", "c"]
-      expected = [["abc"], ["a", "bc"], ["ab", "c"], ["ac", "b"], ["a", "b", "c"]]
-      result = lexical_combinations(arr).map{|x| x.sort}.sort{|a,b| a.length == b.length ? a[0] <=> b[0] : a.length <=> b.length}
-      expect(result).to eql(expected)
+      expected = [["abc"], ["acb"], ["bac"], ["bca"], ["cab"], ["cba"], 
+                  ["a", "bc"], ["a", "cb"], ["ab", "c"], ["ac", "b"],
+                  ["b", "ac"], ["b", "ca"], ["ba", "c"], ["bc", "a"],
+                  ["c", "ab"], ["c", "ba"], ["ca", "b"], ["cb", "a"],
+                  ["a", "b", "c"], ["a", "c", "b"],
+                  ["b", "a", "c"], ["b", "c", "a"],
+                  ["c", "a", "b"], ["c", "b", "a"]]
+      result = lexical_combinations(arr)
+      expect(result).to match_array(expected)
     end
   end
   
 end
+

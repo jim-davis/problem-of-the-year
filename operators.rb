@@ -135,7 +135,9 @@ end
 class << Log
 end
 
-binary_operators << Log
+# Log is not allowed
+#binary_operators << Log
+
 Mod = BinaryOperator.new("mod", 5, Proc.new {|n, base| safe_mod(n, base)}, :PRE)
 
 def safe_mod(n, base)
@@ -148,9 +150,12 @@ end
 class << Mod
 end
 
-binary_operators << Mod
+# mod is not allowed
+#binary_operators << Mod
 
 BINARY_OPERATORS = binary_operators
+
+monadic_operators = []
 
 Fact = MonadicOperator.new("!", 6, Proc.new { |op| factorial(op)}, :POST)
 
@@ -170,12 +175,16 @@ def factorial(x)
   x == 1 ? 1 : x * factorial(x-1)
 end
 
+monadic_operators << Fact
+
 Sqrt = MonadicOperator.new("sqrt", 6, Proc.new { |op| Math.sqrt(op) }, :PRE)
 class << Sqrt
   def noop? (x)
     x.is_a?(Digit) && x.value == 1
   end
 end
+
+monadic_operators << Sqrt
 
 Abs = MonadicOperator.new("|", 6, Proc.new { |op| op.abs }, :PRE)
 class << Abs
@@ -187,4 +196,6 @@ class << Abs
   end
 end
 
-MONADIC_OPERATORS = [Fact, Sqrt, Abs]
+# Abs is not allowed
+
+MONADIC_OPERATORS = monadic_operators

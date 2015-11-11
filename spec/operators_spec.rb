@@ -23,8 +23,10 @@ describe MonadicOperator do
 end
 
 describe BinaryOperator do
-  describe "operator is prefix" do
-    describe "#expression_string" do
+
+  describe "#expression_string" do
+
+    describe "operator is prefix" do
       describe "when precedence is lower than context" do
         it "encloses operands in brackets" do
           op = BinaryOperator.new("@", 0, nil, :PRE)
@@ -46,10 +48,8 @@ describe BinaryOperator do
         end
       end
     end
-  end
 
-  describe "if not prefix (infix)" do
-    describe "#expression_string" do
+    describe "operator is infix" do
       describe "when precedence is lower than context" do
         it "encloses operands in brackets" do
           op = BinaryOperator.new("@", 0, nil, :IN)
@@ -70,9 +70,30 @@ describe BinaryOperator do
           expect(op.expression_string(-1, op1, op2)).to eql("259 @ 11")
         end
       end
+      describe "when precedence is same as context" do
+        describe "when operator is associative" do
+          it "omits brackets" do
+            op = BinaryOperator.new("@", 0, nil, :IN, true)
+            op1 = double("operand")
+            allow(op1).to receive(:stringify) {"259"}
+            op2 = double("operand")
+            allow(op2).to receive(:stringify) {"11"}
+            expect(op.expression_string(0, op1, op2)).to eql("259 @ 11")
+          end
+        end
+        describe "when operator is not associative" do
+          it "encloses expression in brackets" do
+            op = BinaryOperator.new("@", 0, nil, :IN, false)
+            op1 = double("operand")
+            allow(op1).to receive(:stringify) {"259"}
+            op2 = double("operand")
+            allow(op2).to receive(:stringify) {"11"}
+            expect(op.expression_string(0, op1, op2)).to eql("(259 @ 11)")
+          end
+        end
+      end
     end
   end
-
 end
 
 describe "Plus" do

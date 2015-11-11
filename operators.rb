@@ -61,11 +61,13 @@ class BinaryOperator < Operator
         operand2.stringify(@precedence) +
         ")"
     else
-      (parent_precedence > @precedence ? "(" : "") + 
+      brackets = parent_precedence > @precedence || 
+        parent_precedence == @precedence && !@is_associative
+      (brackets ? "(" : "") + 
         operand1.stringify(@precedence) +
         " " + @symbol + " " +
         operand2.stringify(@precedence) +
-        (parent_precedence > @precedence ? ")" : "")
+        (brackets ? ")" : "")
     end
   end
 end

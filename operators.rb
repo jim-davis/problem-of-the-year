@@ -24,6 +24,9 @@ class Operator
   def commutative?
     @is_commutative
   end
+  def opCount
+    1
+  end
 end
 
 class MonadicOperator < Operator
@@ -32,6 +35,9 @@ class MonadicOperator < Operator
   end
   def noop?(x)
     false
+  end
+  def applies_to?(x)
+    true
   end
   def expression_string(parent_precedence, operand)
     if postfix?
@@ -51,6 +57,9 @@ class BinaryOperator < Operator
   end
   def noop?(x, y)
     false
+  end
+  def applies_to?(x, y)
+    true
   end
   def expression_string(parent_precedence, operand1, operand2)
     if prefix?
@@ -122,38 +131,23 @@ end
 binary_operators << Expt
 
 
-Log = BinaryOperator.new("log", 5, Proc.new {|n, base| safe_log(base, n)}, :PRE)
 
-def safe_log(base, n)
-  if n <= 0 
-    raise RangeError.new("log power must be positive")
+# Glues two digits together.  It only applies to Digits
+Concat = BinaryOperator.new("C", 99, Proc.new{|d1, d2| (d1.to_s + d2.to_s).to_i}, :IN)
+
+class << Concat
+  def expression_string(parent_precedence, operand1, operand2)
+    evaluate([operand1, operand2]).to_s
   end
-  if base < 1 && n != 1
-    raise RangeError.new("Log Base must be >= 1")
+  def applies_to?(x, y)
+    (x.is_a? Digit) && (y.is_a? Digit)
   end
-  Math.log(n, base)
-end
-
-class << Log
-end
-
-# Log is not allowed
-#binary_operators << Log
-
-Mod = BinaryOperator.new("mod", 5, Proc.new {|n, base| safe_mod(n, base)}, :PRE)
-
-def safe_mod(n, base)
-  if base <= 0
-    raise RangeError.new("Mod base must be positive")
+  def opCount
+    0
   end
-  n % base
-end
-    
-class << Mod
 end
 
-# mod is not allowed
-#binary_operators << Mod
+binary_operators << Concat
 
 BINARY_OPERATORS = binary_operators
 
@@ -187,17 +181,5 @@ class << Sqrt
 end
 
 monadic_operators << Sqrt
-
-Abs = MonadicOperator.new("|", 6, Proc.new { |op| op.abs }, :PRE)
-class << Abs
-  def noop? (x)
-    x.is_a?(Digit) && x.value >= 0
-  end
-  def expression_string (operand)
-    "|#{operand}|"
-  end
-end
-
-# Abs is not allowed
 
 MONADIC_OPERATORS = monadic_operators

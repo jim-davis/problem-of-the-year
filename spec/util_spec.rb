@@ -70,3 +70,29 @@ describe "lexical_combinations" do
   
 end
 
+describe "#is_Integer?" do
+  describe "Integer" do
+    it "is always true" do
+      expect(2.is_Integer?).to eq(true)
+    end
+  end
+
+  describe "Float" do
+    it "is true for round numbers" do
+      expect((24.0).is_Integer?).to eq(true)
+    end
+    it "is false for not-round numbers" do
+      expect((24.1).is_Integer?).to eq(false)
+    end
+  end
+
+  describe "Rational" do
+    it "is true for round numbers" do
+      expect(Rational(2,2).is_Integer?).to eq(true)
+    end
+    it "is false for not-round numbers" do
+      expect(Rational(2,3).is_Integer?).to eq(false)
+    end
+  end
+  
+end

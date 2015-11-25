@@ -7,6 +7,9 @@ class Expression
   def depth
     0
   end
+  def opCount
+    0
+  end
 end
 
 # An Expression is either Digit or an operator expression
@@ -34,6 +37,10 @@ class Digit < Expression
   def hash
     value.hash
   end
+
+  def opCount
+    0
+  end
   
 end
 
@@ -51,6 +58,10 @@ class OpExpression < Expression
   def hash
     self.class.hash ^ self.operator.hash ^ operands.hash
   end
+  def opCount
+    @operator.opCount +  @operands.map{|op| op.opCount}.reduce(:+)
+  end
+
   
 end
 
@@ -103,10 +114,4 @@ class BinaryExpression < OpExpression
       self.class.hash ^ self.operator.hash ^ self.operands.hash
     end
   end
-
-end
-
-if __FILE__ == $0
-  expr = MonadicExpression.new(Fact, Digit.new(3))
-  puts "#{expr.to_s} == #{expr.evaluate}"
 end

@@ -35,3 +35,24 @@ def lexical_combinations(strings)
   end
   l
 end
+
+class Float
+  def is_Integer?
+    self.floor == self
+  end
+end
+
+class Integer
+  def is_Integer?
+    true
+  end
+end
+
+class Rational
+  def is_Integer?
+    self.floor == self
+  end
+end
+
+
+    

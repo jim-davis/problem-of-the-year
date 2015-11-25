@@ -1,5 +1,6 @@
 require "Rspec"
 require "operators"
+require "extra_operators"
 
 describe MonadicOperator do
   describe "#expression_string" do
@@ -152,8 +153,6 @@ describe "Mod" do
   end
 end
 
-
-
 describe "Abs" do
   describe "#evaluate" do
     it "0 is 0" do
@@ -172,3 +171,22 @@ describe "Fact" do
     end
   end
 end
+
+describe "Concat" do
+  describe "#evaluate" do
+    it "concatenates its arguments" do
+      expect(Concat.evaluate([1, 5])).to eq(15)
+    end
+  end
+  describe "#expression_string" do
+    it "concatenates" do
+      expect(Concat.expression_string(0, 1, 2)).to eq("12")
+    end
+  end
+  describe "#opCount" do
+    it "is zero" do
+      expect(Concat.opCount).to eq(0)
+    end
+  end
+end
+

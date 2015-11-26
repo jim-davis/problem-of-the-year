@@ -70,6 +70,7 @@ end
 def find_expressions(digits, range, stats)
   value_expressions = Hash.new{|h, k| h[k]=[]}
   generate_expressions(digits, stats) do |expr|
+    stats.countExpression
     v = nil
     begin
       v = expr.evaluate

@@ -1,5 +1,9 @@
 #!/c/Ruby193/bin/ruby
 
+# TODO 
+# roughly 10% of the expressions generated get an error at runtime.  Could we eliminate those?
+# Maybe try the simplest tree first, and only try others if we don't get them all
+
 $LOAD_PATH << Dir.pwd
 
 require "util"
@@ -81,6 +85,10 @@ def find_expressions(digits, range, stats)
             stats.got_value(v)
           end
           value_expressions[v] << expr
+          if value_expressions.keys.length === range.count
+            puts "Got them all.  Quitting"
+            break
+          end
         end
       end
     rescue RangeError => e

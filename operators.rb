@@ -115,7 +115,11 @@ binary_operators << Divide
 Expt = BinaryOperator.new("**", 4, Proc.new {|op1, op2| safe_expt(op1, op2)}, :IN)
 
 def safe_expt(op1, op2)
-  if op2 > 10
+  if op2 < 0
+    raise RangeError.new("Exponent power #{op2} is negative")
+  end
+
+  if op2 > 8
     raise RangeError.new("Exponent power #{op2} too large")
   end
   if op1 * op2 > 20
@@ -124,7 +128,6 @@ def safe_expt(op1, op2)
   op1 ** op2
 end
 
-# true that 1^n is 1, but sometimes you need to get rid of a digit
 class << Expt
 end
 
@@ -161,6 +164,7 @@ class << Fact
   end
 end
 
+# FIXME.  there's no need to generate sqrt(1) or fact(1) or fact(2)
 def factorial(x) 
   if x < 1 || !x.is_a?(Fixnum)
     raise RangeError.new("factorial is only defined on whole numbers > 0, not #{x}")

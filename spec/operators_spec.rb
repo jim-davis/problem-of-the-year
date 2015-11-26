@@ -132,7 +132,7 @@ end
 describe "Expt" do
   describe "#evaluate" do
     it "raises first to second" do
-      expect(Expt.evaluate([2,10])).to eq(1024)
+      expect(Expt.evaluate([2,5])).to eq(32)
     end
   end
 end

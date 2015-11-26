@@ -88,6 +88,7 @@ def find_expressions(digits, range, stats)
       # ignore
     rescue Exception => e
       STDERR.puts "Eval #{expr} caused #{e}" if @show_errors
+      stats.countError
     end
   end
   value_expressions

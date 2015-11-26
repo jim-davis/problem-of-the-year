@@ -24,16 +24,22 @@ def generate_expressions(digits, stats)
     binary_expressions_over(d[0], d[1]).each {|b01|
       binary_expressions_over(b01, d[2]).each {|b012|
         binary_expressions_over(b012, d[3]).each {|expr| yield(expr)}}}
-      
+
+    # We don't *need* this tree, at least not for 1468
+    if false
     # right associative tree (0 (1 (2 3)))
     binary_expressions_over(d[2], d[3]).each {|b23|
       binary_expressions_over(d[1], b23).each {|b123|
         binary_expressions_over(d[0], b123).each {|expr| yield(expr)}}}
+    end
 
+    # We don't *need* this tree, at least not for 1468
+    if false
     # another tree ((0 (1 2)) 3)
     binary_expressions_over(d[1], d[2]).each {|b12|
       binary_expressions_over(d[0], b12).each {|b012|
         binary_expressions_over(b012, d[3]).each {|expr| yield(expr)}}}
+    end
 
     i+=1
     stats.setProgress(i)

@@ -14,6 +14,7 @@ require "optparse"
 require "statistics"
 
 @show_errors = false
+@max_errors = 10
 
 def main
   options = {
@@ -22,7 +23,8 @@ def main
     only: nil,
     show_all: false,
     show_errors: false,
-    permutations: false
+    permutations: false,
+    max_errors: 10
   }
 
   OptionParser.new do |opts|
@@ -46,6 +48,10 @@ def main
     opts.on("--[no-]show-errors", "show errors while evaluating") do |v|
       options[:show_errors] = v
     end
+    opts.on("--max-errors n", "Stop if more than n errors arise") do |v|
+      options[:show_errors] = true
+      options[:max_errors] = v.to_i
+    end
     opts.on("--show-all", "show all results, not just first")  do |v|
       options[:show_all] = v
     end
@@ -57,17 +63,20 @@ def main
   end.parse!
 
   @show_errors = options[:show_errors]
+  @max_errors = options[:max_errors]
 
   stats = Statistics.new(options[:verbose])
 
   stats.start
-  r = find_expressions( options[:digits], 1..options[:max], options[:permutations], stats)
-  stats.report
+  catch (:error_limit) do
+    r = find_expressions( options[:digits], 1..options[:max], options[:permutations], stats)
+    stats.report
 
-  if options[:only]
-    r[options[:only]].sort_by{|e| e.opCount}.each{|expr| puts expr.to_s}
-  else
-    print_results(r, options[:show_all])
+    if options[:only]
+      r[options[:only]].sort_by{|e| e.opCount}.each{|expr| puts expr.to_s}
+    else
+      print_results(r, options[:show_all])
+    end
   end
 end
 
@@ -77,6 +86,7 @@ end
 # Also takes a instance of Statistics, used to report progress and collect statistics.
 def find_expressions(digits, range, allow_permutations, stats)
   value_expressions = Hash.new{|h, k| h[k]=[]}
+  error_counter = 0
   generate_expressions(digits, allow_permutations, stats) do |expr|
     stats.countExpression
     v = nil
@@ -100,6 +110,11 @@ def find_expressions(digits, range, allow_permutations, stats)
       # ignore
     rescue Exception => e
       STDERR.puts "Eval #{expr} caused #{e}" if @show_errors
+      error_counter += 1
+      if @max_errors && error_counter >= @max_errors
+        STDERR.puts "Error limit reached.  Halting"
+        throw :error_limit
+      end
       stats.countError
     end
   end

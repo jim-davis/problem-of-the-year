@@ -3,8 +3,8 @@ require "generate"
 require "expressions"
 
 describe "#monadic_expressions_over" do
-  it "the unit tests assume there are four monadic operators" do
-    expect(MONADIC_OPERATORS.count).to eq(4) # Fact, Sqrt, Decimalize, RepeatingDecimal
+  it "the unit tests assume there are five monadic operators" do
+    expect(MONADIC_OPERATORS.count).to eq(5) # Fact, Sqrt, Decimalize, RepeatingDecimal, PrefixMinus
   end
 
   it "generates an expression of depth 1" do
@@ -12,7 +12,7 @@ describe "#monadic_expressions_over" do
   end
 
   it "combines all monadic operators to depth 1" do
-    expect(monadic_expressions_over(Digit.new(9)).length).to eq(4 + 1)
+    expect(monadic_expressions_over(Digit.new(9)).length).to eq(5 + 1)
 
   end
 end

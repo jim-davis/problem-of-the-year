@@ -150,16 +150,20 @@ BINARY_OPERATORS = binary_operators
 
 monadic_operators = []
 
-Fact = MonadicOperator.new("!", 6, Proc.new { |op| factorial(op)}, :POST)
+Fact = MonadicOperator.new("!", 6, Proc.new { |op| safe_factorial(op)}, :POST)
 
-def factorial(x) 
-  raise Noop if x == 0 || x == 1 || x == 2
+def safe_factorial(x) 
+  raise Noop if (x == 0 || x == 1 || x == 2)
   if x < 1 || !x.is_a?(Fixnum)
     raise RangeError.new("Factorial defined on whole numbers > 0, not #{x}")
   end
   if x > 10
     raise RangeError.new("Factorial argument #{x}! is too big")
   end
+  factorial(x)
+end
+
+def factorial(x)
   x == 1 ? 1 : x * factorial(x-1)
 end
 
@@ -199,15 +203,27 @@ monadic_operators << Decimalize
 # This is very ad-hoc.  only .9_ is allowed
 RepeatingDecimal = MonadicOperator.new(".", 10, Proc.new { |op| 1 }, :PRE)
 class << RepeatingDecimal
-   def applies_to?(x)
-    (x.is_a? Digit) && x.value == 9
-  end
-  def expression_string(parent_precedence, operand)
-    "." + operand.stringify(@precedence) + "_"
-  end
-end
+  def applies_to?(x)
+     (x.is_a? Digit) && x.value == 9
+   end
+   def expression_string(parent_precedence, operand)
+     "." + operand.stringify(@precedence) + "_"
+   end
+ end
 
 monadic_operators << RepeatingDecimal
 
+PrefixMinus = MonadicOperator.new("-", 12, Proc.new{ |op| 0 - op}, :PRE)
+class << PrefixMinus
+   def applies_to?(x)
+     x.is_a? Digit
+   end
+   def expression_string(parent_precedence, operand)
+     "-" + operand.stringify(@precedence)
+   end
+
+ end
+
+monadic_operators << PrefixMinus
 
 MONADIC_OPERATORS = monadic_operators

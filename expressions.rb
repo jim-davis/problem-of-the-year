@@ -41,6 +41,10 @@ class Digit < Expression
   def opCount
     0
   end
+
+  def inspect
+    value
+  end
   
 end
 
@@ -61,8 +65,9 @@ class OpExpression < Expression
   def opCount
     @operator.opCount +  @operands.map{|op| op.opCount}.reduce(:+)
   end
-
-  
+  def inspect
+    "(#{operator.symbol}" + " " + operands.map{|op| op.inspect}.join(" ") + ")"
+  end
 end
 
 class MonadicExpression < OpExpression

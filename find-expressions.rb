@@ -1,7 +1,4 @@
-#!/c/Ruby193/bin/ruby
-
 # TODO 
-# roughly 10% of the expressions generated get an error at runtime.  Could we eliminate those?
 # Maybe try the simplest tree first, and only try others if we don't get them all
 
 $LOAD_PATH << Dir.pwd
@@ -13,16 +10,16 @@ require "generate"
 require "optparse"
 require "statistics"
 
-@show_errors = false
+@show_errors = true
 @max_errors = 10
 
 def main
   options = {
-    digits: %w(1 4 6 8),
+    digits: nil,
     max: 100,
     only: nil,
     show_all: false,
-    show_errors: false,
+    show_errors: true,
     permutations: false,
     max_errors: 10
   }
@@ -62,6 +59,11 @@ def main
 
   end.parse!
 
+  if options[:digits].nil?
+    STDERR.puts "Missing argument --digits" 
+    exit 1
+  end
+
   @show_errors = options[:show_errors]
   @max_errors = options[:max_errors]
 
@@ -88,11 +90,11 @@ def find_expressions(digits, range, allow_permutations, stats)
   value_expressions = Hash.new{|h, k| h[k]=[]}
   error_counter = 0
   generate_expressions(digits, allow_permutations, stats) do |expr|
-    stats.countExpression
     v = nil
     begin
       v = expr.evaluate
-      if v.is_Integer?
+      stats.countExpression
+      if v.is_a? Integer
         v = v.floor
         if range.include?(v)
           if !value_expressions.has_key?(v) 
@@ -106,8 +108,11 @@ def find_expressions(digits, range, allow_permutations, stats)
         end
       end
     rescue RangeError => e
-      # Several operators raise RangeError to stop processing, e.g. for factorial
+      # Several operators raise RangeError to stop processing, e.g. for factorial argument too large
       # ignore
+    rescue Noop => e
+      # The expression includes an operator that is a Noop, which means there is guaranteed to be
+      # a simpler way to say the same thing
     rescue Exception => e
       STDERR.puts "Eval #{expr} caused #{e}" if @show_errors
       error_counter += 1

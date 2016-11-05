@@ -190,3 +190,37 @@ describe "Concat" do
   end
 end
 
+describe "Decimalize" do
+  describe "#evaluate" do
+    it "computes divides by 10" do
+      expect(Decimalize.evaluate([5])).to eq(0.5)
+    end
+  end
+  describe "#expression_string" do
+    it "prepends a dot" do
+      expect(Decimalize.expression_string(0, Digit.new(1))).to eq(".1")
+    end
+  end
+end
+
+describe "RepeatingDecimal" do
+  describe "#evaluate" do
+    it ".9_ is 1" do
+      expect(RepeatingDecimal.evaluate([9])).to eq(1)
+    end
+  end
+  describe "#applies_to?" do
+    it "applies_to 9" do
+      expect(RepeatingDecimal.applies_to?(Digit.new(9))).to be(true)
+    end
+    it "does not apply_to any other digit" do
+      expect(RepeatingDecimal.applies_to?(Digit.new(1))).to be(false)
+    end
+
+  end
+  describe "#expression_string" do
+    it "prepends a dot and postpends a bar" do
+      expect(RepeatingDecimal.expression_string(0, Digit.new(1))).to eq(".1_")
+    end
+  end
+end

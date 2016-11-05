@@ -177,6 +177,7 @@ end
 
 monadic_operators << Fact
 
+
 Sqrt = MonadicOperator.new("sqrt", 6, Proc.new { |op| Math.sqrt(op) }, :PRE)
 class << Sqrt
   def noop? (x)
@@ -185,5 +186,31 @@ class << Sqrt
 end
 
 monadic_operators << Sqrt
+
+Decimalize = MonadicOperator.new(".", 10, Proc.new { |op| op * 0.1 }, :PRE)
+class << Decimalize
+   def applies_to?(x)
+    (x.is_a? Digit)
+  end
+  def expression_string(parent_precedence, operand)
+    "." + operand.stringify(@precedence) 
+  end
+end
+
+monadic_operators << Decimalize
+
+# This is very ad-hoc.  only .9_ is allowed
+RepeatingDecimal = MonadicOperator.new(".", 10, Proc.new { |op| 1 }, :PRE)
+class << RepeatingDecimal
+   def applies_to?(x)
+    (x.is_a? Digit) && x.value == 9
+  end
+  def expression_string(parent_precedence, operand)
+    "." + operand.stringify(@precedence) + "_"
+  end
+end
+
+monadic_operators << RepeatingDecimal
+
 
 MONADIC_OPERATORS = monadic_operators

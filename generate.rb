@@ -51,8 +51,9 @@ end
 
 # Arbitrarily decided to allow at most two levels of monadic functional composition
 def monadic_expressions_over(operand)
-  MONADIC_OPERATORS.map { |op| MonadicExpression.new(op, operand) } + [operand]
-  #MONADIC_OPERATORS.flat_map { |op2| first_level.map {|expr| MonadicExpression.new(op2, expr)}} + [operand]
+  [operand] + MONADIC_OPERATORS
+    .select { |op| op.applies_to?(operand)}
+    .map { |op| MonadicExpression.new(op, operand) }
 end
 
 def binary_expressions_over(op1, op2)

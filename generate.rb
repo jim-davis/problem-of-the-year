@@ -2,11 +2,13 @@ require "expressions"
 require "operators"
 
 # Fixme: assumes there are four digits
-def generate_expressions(digits, stats) 
+def generate_expressions(digits, allow_permutations, stats) 
   i = 0
-  stats.setProgressMax(digits.permutation.count)
 
-  digits.permutation.each do |operands|
+  digit_sets = allow_permutations ? digits.permutation : [digits]
+  stats.setProgressMax(digit_sets.count)
+
+  digit_sets.each do |operands|
 
     # I tried different ways of generating the expressions.
     # I suppose the third way is the clearest, but none of them are very clear.

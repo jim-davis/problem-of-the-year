@@ -21,7 +21,8 @@ def main
     max: 100,
     only: nil,
     show_all: false,
-    show_errors: false
+    show_errors: false,
+    permutations: false
   }
 
   OptionParser.new do |opts|
@@ -38,6 +39,9 @@ def main
     end
     opts.on("--only D", "show only solutions for D") do |v|
       options[:only] = v.to_i
+    end
+    opts.on("--[no-]permutations", "allow permutations of digits") do |v|
+      options[:permutations] = v
     end
     opts.on("--[no-]show-errors", "show errors while evaluating") do |v|
       options[:show_errors] = v
@@ -57,7 +61,7 @@ def main
   stats = Statistics.new(options[:verbose])
 
   stats.start
-  r = find_expressions( options[:digits], 1..options[:max], stats)
+  r = find_expressions( options[:digits], 1..options[:max], options[:permutations], stats)
   stats.report
 
   if options[:only]
@@ -71,9 +75,9 @@ end
 # value is the set of expressions (constructed using only those digits)
 # that evaluate to that number, which must  be in the range.
 # Also takes a instance of Statistics, used to report progress and collect statistics.
-def find_expressions(digits, range, stats)
+def find_expressions(digits, range, allow_permutations, stats)
   value_expressions = Hash.new{|h, k| h[k]=[]}
-  generate_expressions(digits, stats) do |expr|
+  generate_expressions(digits, allow_permutations, stats) do |expr|
     stats.countExpression
     v = nil
     begin

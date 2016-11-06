@@ -1,4 +1,5 @@
 # TODO 
+# Does not find a solution for 59 for the digits 1492.  I must be missing something.
 # Maybe try the simplest tree first, and only try others if we don't get them all
 # Known limitation: there must be exactly four digits
 
@@ -96,11 +97,13 @@ end
 def find_expressions(digits, range, allow_permutations, stats)
   value_expressions = Hash.new{|h, k| h[k]=[]}
   error_counter = 0
+  expression_counter = 0
   generate_expressions(digits, allow_permutations, stats) do |expr|
-    v = nil
+    stats.countExpression
     begin
       v = expr.evaluate
-      stats.countExpression
+      stats.countEvaluation
+
       if v.is_a? Integer
         v = v.floor
         if range.include?(v)

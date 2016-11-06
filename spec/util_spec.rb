@@ -96,3 +96,20 @@ describe "#is_Integer?" do
   end
   
 end
+
+describe "#asArray" do
+  describe "given a scalar" do
+    it "returns an array of that scalar" do
+      r = asArray(nil)
+      expect(r).to be_kind_of(Array)
+      expect(r.count).to eq(1)
+      expect(r[0]).to eq(nil)
+    end
+  end
+  describe "given an array" do
+    it "returns that array" do
+      a = [259, 11]
+      expect(asArray(a)).to eq(a)
+    end
+  end
+end

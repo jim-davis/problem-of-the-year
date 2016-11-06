@@ -13,6 +13,10 @@ class Array
   end
 end
 
+def asArray(x)
+  x.is_a?(Array)? x : [x]
+end
+
 # Given a set of strings, 
 # return the set of all sets 
 # that can be formed by combining those strings in any order

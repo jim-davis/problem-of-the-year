@@ -7,12 +7,14 @@ class Statistics
   def start
     @startTime = Time.now
     @expressionCount = 0
+    @evaluationCount = 0
     @errorCount = 0
   end
 
   def report
-    puts "Elapsed #{Time.now - @startTime} seconds"
+    puts "Generated #{@expressionCount} expressions.  Evaluated #{@evaluationCount}.  Found #{@countFound} answers in #{Time.now - @startTime} seconds"
   end
+
 
   def got_value(v)
     @countFound +=1
@@ -28,6 +30,10 @@ class Statistics
 
   def countExpression
     @expressionCount +=1
+  end
+
+  def countEvaluation
+    @evaluationCount += 1
   end
 
   def countError

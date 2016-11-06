@@ -12,33 +12,29 @@ describe "#monadic_expressions_over" do
   end
 
   it "combines all monadic operators to depth 1" do
+    # Fixme this test works because we know that digit 9 is the only one to which all monadic operators
+    # may be applied.
     expect(monadic_expressions_over(Digit.new(9)).length).to eq(5 + 1)
-
   end
 end
 
-describe "#binary_expressions_over" do
-  it "generates every monadic operator (that can apply to expressions) applied to every binary operator" do
-    expect(binary_expressions_over(Digit.new(1), Digit.new(2)).length).to eq(4 * BINARY_OPERATORS.length)
-  end
+describe "#expressions_over" do
   it "generates an array" do
-    r = binary_expressions_over(Digit.new(1), Digit.new(2))
-    expect(r.kind_of?(Array)).to eq(true)
+    expect(expressions_over([Digit.new(1)], [Digit.new(2)])).to be_kind_of(Array)
   end
   it "generates an array of expressions" do
-    r = binary_expressions_over(Digit.new(1), Digit.new(2))
+    r = expressions_over([Digit.new(1)], [Digit.new(2)])
     expect(r[0].kind_of?(Expression)).to eq(true)
   end
-  describe "when given array of ops" do
-    it "combines the two arrays" do
-      op1 = [Digit.new(1), Digit.new(2)]
-      op2 = [Digit.new(3), Digit.new(4)]
-      r = binary_expressions_over(op1, op2)
-      puts "#{r}"
-      expect(r.length).to eq(4 * 6 * 4)
-      expect(r.kind_of?(Array)).to eq(true)
-      expect(r[0].kind_of?(Expression)).to eq(true)
-    end
+  it "generates the right number of new expressions" do
+    op1 = [Digit.new(1), Digit.new(2)]
+    op2 = [Digit.new(3), Digit.new(4)]
+    r = expressions_over(op1, op2)
+    # Fixme.  This has implict knowledge that there are exactly three monadic operators
+    # that can apply to expressions (as opposed to the ones that apply only to digits)
+    # and it knows that every binary operator is applicable.
+    # The +1 is because we also include the null monadic operator
+    expect(r.length).to eq( (3 + 1) * BINARY_OPERATORS.length * op1.count * op2.count)
   end
 end
 

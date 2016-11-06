@@ -10,39 +10,38 @@ def generate_expressions(digits, allow_permutations, stats)
 
   digit_sets.each do |operands|
 
-    # I tried different ways of generating the expressions.
-    # I suppose the third way is the clearest, but none of them are very clear.
+    # I'm the first to admit that these generators are hard to understand
     # There really should be a more compact notation for this, which then gets intepreted to generate
-    # the loop structure.  And some systematic way of ensuring we generate all types of tree
+    # the loop structure.  And some systematic way of ensuring we generate all types of tree.
+    # I *think* I have them all.
 
     d = operands.map{|digit| monadic_expressions_over(Digit.new(digit))}
 
-    # symmetric tree ((0 1) (2 3))
+    #  ((0 1) (2 3))
     binary_expressions_over(d[0], d[1]).each {|b01|
       binary_expressions_over(d[2], d[3]).each {|b23|
         binary_expressions_over(b01, b23).each {|expr| yield(expr)}}}
-      
-    # left associative tree (((0 1) 2) 3) 
+
+    #  (((0 1) 2) 3)
     binary_expressions_over(d[0], d[1]).each {|b01|
       binary_expressions_over(b01, d[2]).each {|b012|
         binary_expressions_over(b012, d[3]).each {|expr| yield(expr)}}}
 
-    # We don't *need* this tree, at least not for 1468
-    if false
+    # ((0 (1 2)) 3)
+    binary_expressions_over(d[1], d[2]).each {|b12|
+      binary_expressions_over(d[0], b12).each {|b012|
+        binary_expressions_over(b012, d[3]).each {|expr| yield(expr)}}}
+
+    # (0 ((1 2) 3))
+    binary_expressions_over(d[1], d[2]).each {|b12|
+      binary_expressions_over(b12, d[3]).each {|b123|
+        binary_expressions_over(d[0], b123).each {|expr| yield(expr)}}}
+
     # right associative tree (0 (1 (2 3)))
     binary_expressions_over(d[2], d[3]).each {|b23|
       binary_expressions_over(d[1], b23).each {|b123|
         binary_expressions_over(d[0], b123).each {|expr| yield(expr)}}}
-    end
-
-    # We don't *need* this tree, at least not for 1468
-    if false
-    # another tree ((0 (1 2)) 3)
-    binary_expressions_over(d[1], d[2]).each {|b12|
-      binary_expressions_over(d[0], b12).each {|b012|
-        binary_expressions_over(b012, d[3]).each {|expr| yield(expr)}}}
-    end
-
+      
     i+=1
     stats.setProgress(i)
   end

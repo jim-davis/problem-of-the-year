@@ -1,5 +1,6 @@
 # TODO 
 # Maybe try the simplest tree first, and only try others if we don't get them all
+# Known limitation: there must be exactly four digits
 
 $LOAD_PATH << Dir.pwd
 
@@ -63,6 +64,12 @@ def main
     STDERR.puts "Missing argument --digits" 
     exit 1
   end
+
+  if options[:digits].count != 4
+    STDERR.puts "You must provide exactly four digits." 
+    exit 1
+  end
+    
 
   @show_errors = options[:show_errors]
   @max_errors = options[:max_errors]

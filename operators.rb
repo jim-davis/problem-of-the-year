@@ -215,9 +215,6 @@ monadic_operators << RepeatingDecimal
 
 PrefixMinus = MonadicOperator.new("-", 12, Proc.new{ |op| 0 - op}, :PRE)
 class << PrefixMinus
-   def applies_to?(x)
-     x.is_a? Digit
-   end
    def expression_string(parent_precedence, operand)
      "-" + operand.stringify(@precedence)
    end

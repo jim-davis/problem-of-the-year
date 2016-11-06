@@ -18,8 +18,8 @@ describe "#monadic_expressions_over" do
 end
 
 describe "#binary_expressions_over" do
-  it "generates every monadic operator applied to every binary operator" do
-    expect(binary_expressions_over(Digit.new(1), Digit.new(2)).length).to eq(3 * BINARY_OPERATORS.length)
+  it "generates every monadic operator (that can apply to expressions) applied to every binary operator" do
+    expect(binary_expressions_over(Digit.new(1), Digit.new(2)).length).to eq(4 * BINARY_OPERATORS.length)
   end
   it "generates an array" do
     r = binary_expressions_over(Digit.new(1), Digit.new(2))
@@ -35,7 +35,7 @@ describe "#binary_expressions_over" do
       op2 = [Digit.new(3), Digit.new(4)]
       r = binary_expressions_over(op1, op2)
       puts "#{r}"
-      expect(r.length).to eq(4 * 6 * 3)
+      expect(r.length).to eq(4 * 6 * 4)
       expect(r.kind_of?(Array)).to eq(true)
       expect(r[0].kind_of?(Expression)).to eq(true)
     end

@@ -8,7 +8,6 @@ class Statistics
     @startTime = Time.now
     @expressionCount = 0
     @evaluationCount = 0
-    @errorCount = 0
   end
 
   def report
@@ -25,7 +24,7 @@ class Statistics
   end
 
   def setProgress(i)
-    puts "#{(Float(i) * 100/@n).floor}% examined.  #{@expressionCount} expressions checked. #{@errorCount} errors.  #{@countFound} answers found"
+    puts "#{(Float(i) * 100/@n).floor}% examined.  #{@expressionCount} expressions checked.   #{@countFound} answers found"
   end
 
   def countExpression
@@ -35,11 +34,6 @@ class Statistics
   def countEvaluation
     @evaluationCount += 1
   end
-
-  def countError
-    @errorCount += 1
-  end
-
 
 end
 

@@ -1,4 +1,9 @@
 require "Rspec"
+
+b = Dir.pwd
+$LOAD_PATH << b
+$LOAD_PATH << File.join(b ,"tree_based")
+
 require "generate"
 require "expressions"
 

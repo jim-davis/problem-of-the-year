@@ -12,11 +12,7 @@ For Spirit of Math the set of operators allowed is explicitly limited to additio
 
 To run the program:
 
-ruby find-expressions.rb --digits 1492
+ruby poty.rb --digits 1492
 
 This implementation generates all possible expression trees using the five binary operators, applying the monadic operators to the digits and to the intermediate values in the tree.  That's about 30 million expressions in total.
 
-The current version finds 99 out of 100 solutions for the digit set 1492 with no permutations allowed.
-It could not find a solution for "59"!
-
-It took 10 minutes in my Dell laptop using Ruby 2.2, and generated 30256320 expressions, of which 944905 were actually evaluated.  (The others were skipped either because of range errors (square root of negative) or obvious superfluous expressions (1! is just 1)

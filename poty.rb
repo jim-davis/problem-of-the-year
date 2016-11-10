@@ -19,7 +19,7 @@ def main
     only: nil,
     show_all: false,
     permutations: false,
-    algorithm: :tree
+    algorithm: :graph
   }
 
   OptionParser.new do |opts|
@@ -79,19 +79,20 @@ def main
              raise "Unsupported solver algorithm #{options[:algorithm]}"
            end
   
-  r = solver.solve(options[:digits], 1..options[:max])
+  range = 1..options[:max]
+  r = solver.solve(options[:digits], range)
 
   stats.report
   if options[:only]
     r[options[:only]].sort_by{|e| e.opCount}.each{|expr| puts expr.to_s}
   else
-    print_results(r, options[:show_all])
+    print_results(r, options[:show_all], range)
   end
 end
 
 # print the results, either showing one expression or all
 # If showing only one, pick the smallest one.
-def print_results(value_expressions, show_all)
+def print_results(value_expressions, show_all, range)
   if value_expressions.keys.length == 0
     puts "No solutions!"
   else
@@ -102,7 +103,7 @@ def print_results(value_expressions, show_all)
         ((expressions.length > 1) ? " plus #{expressions.length - 1} more" : ""))
     end
     found = value_expressions.keys
-    missing = (1..found.max).reject {|i| found.find{|elt| elt == i}}
+    missing = range.reject {|i| found.find{|elt| elt == i}}
     if missing.length > 0
       puts "Missing: #{missing.inspect}"
     end

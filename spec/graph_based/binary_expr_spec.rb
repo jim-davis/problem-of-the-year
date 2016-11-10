@@ -4,7 +4,7 @@ b = Dir.pwd
 $LOAD_PATH << b
 $LOAD_PATH << File.join(b,"graph_based")
 
-require "graph"
+require "binary_expr"
 
 describe BinaryExpr do
   describe "#initialze" do
@@ -37,8 +37,18 @@ describe BinaryExpr do
       r = BinaryExpr.new(@op, @left, @right)
       expect(r.depth).to eq(6)
     end
+
+    describe "when the expression can't be evaluated" do
+      it "makes a Node that is dead" do
+        allow(@op).to receive(:evaluate).and_raise(RangeError)
+        r = BinaryExpr.new(@op, @left, @right)
+        expect(r.dead?).to be true
+      end
+    end
   end
 end
+
+require "monadic_expr"
 
 describe MonadicExpr do
 end

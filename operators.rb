@@ -35,6 +35,9 @@ class Operator
   def applies_to?(x)
     true
   end
+  def to_s
+    symbol
+  end
 end
 
 class MonadicOperator < Operator

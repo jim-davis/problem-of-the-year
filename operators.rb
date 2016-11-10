@@ -156,18 +156,21 @@ monadic_operators = []
 Fact = MonadicOperator.new("!", 6, Proc.new { |op| safe_factorial(op)}, :POST)
 
 def safe_factorial(x) 
-  raise Noop if (x == 0 || x == 1 || x == 2)
-  if x < 1 || !x.is_a?(Fixnum)
-    raise RangeError.new("Factorial defined on whole numbers > 0, not #{x}")
-  end
-  if x > 10
-    raise RangeError.new("Factorial argument #{x}! is too big")
-  end
+  raise Noop if (x == 1 || x == 2)
+  raise RangeError.new("Factorial defined on non-negative numbers, not #{x}") if x < 0
+  raise RangeError.new("Factorial defined on integers, not #{x}") if ! x.is_Integer?
+  raise RangeError.new("Factorial argument #{x}! is too big")   if x > 10
   factorial(x)
 end
 
 def factorial(x)
-  x == 1 ? 1 : x * factorial(x-1)
+  case x
+  when 0
+    1
+  when 1
+    1
+  else x * factorial(x-1)
+  end
 end
 
 monadic_operators << Fact

@@ -8,38 +8,58 @@ require "binary_expr"
 require "operators"
 
 class GraphPotySolver < PotySolver
-  attr_reader :graph, :roots
+  attr_reader :graph
   def solve(digits, range)
     puts "Solving for #{range}"
     super(digits, range)
 
-    @graph = Graph.new()
+    @graph = Graph.new(digits.map { |d| Root.new(d.to_i)})
 
-    @roots = digits.map { |d| Root.new(d.to_i)}
-    @roots.each {|root| graph.add(root)}
-
-    binary_candidates {|operator, left, right|
+    gt = GraphTraverser.new(graph)
+    gt.each do |operator, left, right| 
       consider(graph.add(BinaryExpr.new(operator, left, right)))
-    }
+      puts "Graph has #{graph.nodes.count} nodes"
+    end
 
     results
   end
 
   def consider(n)
-    if n.terminal? && ! n.dead?
+    puts "Consider #{n.value}"
+    if n.terminal? && n.alive?
+      stats.countEvaluation
       v = n.value
       puts "VALUE #{v}"
+      stats.countExpression
       add_result(v, n.to_expression) if interesting?(v)
     end
   end
 
-  # generate triples of operator, operand1 operand2 as long as there are viable nodes in the graph
-  def binary_candidates ()
-    yield Plus, @roots[0], roots[1]
-    yield Plus, @roots[1], roots[2]
-    yield Plus, @roots[2], roots[3]
-    yield Plus, graph.nodes[4], graph.nodes[5]
-    yield Plus, graph.nodes[5], graph.nodes[6]
+
+end
+
+# find node L such that 
+# L is not terminal
+# L is alive
+# there exists another node R
+# that is not terminal and is alive
+#  whose left ancestor is adjacent to the right ancestor of L
+# and there exists a binary operator O such there is no existing Node (O L R)
+
+class GraphTraverser
+  attr_reader :graph
+  include Enumerable
+  def initialize(graph)
+    @graph = graph
+  end
+
+  def each (&block)
+    graph.nodes.select {|l| !l.terminal? && l.alive?}.each {|l| 
+      graph.nodes.select { |r| !r.terminal? && r.alive? && graph.adjacent_ancestors?(l,r)}.each { |r|
+        op = Plus
+        block.call([op, l, r])
+      }
+    }
   end
 
 end

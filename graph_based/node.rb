@@ -1,5 +1,6 @@
 class Node
-  attr_reader :ancestors, :value, :depth
+  attr_reader :ancestors, :value, :depth, :graph
+  attr_writer :graph
   def initialize(ancestors, value, depth)
     @ancestors=ancestors
     @value=value
@@ -11,10 +12,13 @@ class Node
   def rightmost_ancestor
     @ancestors.last
   end
+  def alive?
+    ! value.nil?
+  end
   def dead?
-    value.nil?
+     !alive?
   end
   def terminal?
-    ancestors.count == 4
+    ancestors.count == graph.roots.count
   end
 end

@@ -20,21 +20,13 @@ class GraphPotySolver < PotySolver
       consider(arboretum.add(BinaryExpression.new(operator, left, right)))
     end
 
-    gt.each do |operator, left, right| 
-      consider(arboretum.add(BinaryExpression.new(operator, left, right)))
-    end
-
-    arboretum.nodes.each {|n| puts n}
-
     results
   end
 
   def consider(n)
-    raise "Too deep #{n}" if n.depth > 4
     if n.terminal? && n.alive?
       stats.countEvaluation
       v = n.value
-      puts "VALUE #{v} #{n}"
       stats.countExpression
       add_result(v, n) if interesting?(v)
     end
@@ -59,10 +51,17 @@ class GraphTraverser
   end
 
   def each (&block)
-    arboretum.nodes.select {|l| !l.terminal? && l.alive?}.each do |l| 
-      arboretum.nodes.select { |r| !r.terminal? && r.alive? && arboretum.adjacent_leaves?(l,r)}.each do |r|
-        [Concat, Plus, Times, Minus, Divide ].each do |op| 
-          block.call([op, l, r]) if !arboretum.find_expression(op, l, r)
+    progress = true
+    while progress do
+      progress = false
+      arboretum.nodes.select {|l| !l.terminal? && l.alive?}.each do |l| 
+        arboretum.nodes.select { |r| !r.terminal? && r.alive? && arboretum.adjacent_leaves?(l,r)}.each do |r|
+          [Concat, Plus, Times, Minus, Divide, Expt ].each do |op| 
+            if op.applies_to?(l, r) && !arboretum.find_expression(op, l, r) 
+              progress = true
+              block.call([op, l, r]) 
+            end
+          end
         end
       end
     end

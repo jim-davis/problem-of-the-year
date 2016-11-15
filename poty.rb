@@ -8,8 +8,8 @@ $LOAD_PATH << Dir.pwd
 require "statistics"
 require "optparse"
 autoload :PotySolver, "poty_solver.rb"
-autoload :TreePotySolver, "tree_based/tree_solver.rb"
-autoload :GraphPotySolver, "graph_based/graph_solver.rb"
+autoload :TreePotySolver, "tree_solver.rb"
+autoload :GraphPotySolver, "graph_solver.rb"
 
 
 def main
@@ -45,10 +45,10 @@ def main
     end
 
     opts.on("--tree", "use tree-generation algorithm") do |v|
-      options[:algorithm] == :tree
+      options[:algorithm] = :tree
     end
     opts.on("--graph", "use graph-exploration algorithm") do |v|
-      options[:algorithm] == :graph
+      options[:algorithm] = :graph
     end
 
     opts.on_tail("-h", "--help", "Show this message") do
@@ -84,7 +84,7 @@ def main
 
   stats.report
   if options[:only]
-    r[options[:only]].sort_by{|e| e.opCount}.each{|expr| puts expr.to_s}
+    r[options[:only]].each{|expr| puts expr.to_s}
   else
     print_results(r, options[:show_all], range)
   end
@@ -97,7 +97,7 @@ def print_results(value_expressions, show_all, range)
     puts "No solutions!"
   else
     value_expressions.keys.sort.each do |k|
-      expressions = value_expressions[k].sort_by{|e| e.opCount}
+      expressions = value_expressions[k]
       puts "#{k}: " + (show_all ? "#{expressions}" : 
         "#{expressions.first}" + 
         ((expressions.length > 1) ? " plus #{expressions.length - 1} more" : ""))

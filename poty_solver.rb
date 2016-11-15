@@ -15,7 +15,7 @@ class PotySolver
   end
 
   def interesting?(v)
-    v.is_Integer? && range.include?(v.floor)
+    !v.nil? && v.is_Integer? && range.include?(v.floor)
   end
 
   def add_result(v, expr) 

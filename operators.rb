@@ -1,3 +1,5 @@
+require "util"
+
 class Noop < Exception
 end
 
@@ -27,9 +29,6 @@ class Operator
   def commutative?
     @is_commutative
   end
-  def opCount
-    1
-  end
   # syntactic check.  for example, you can concatenate Digits, but not expressions.
   # This does not (and can not) check values of expressions, e.g. sqrt(negative)
   def applies_to?(x)
@@ -45,7 +44,7 @@ class MonadicOperator < Operator
     f.call(operands[0])
   end
   def applies_to?(x)
-    true
+    x.alive?
   end
   def expression_string(parent_precedence, operand)
     if postfix?
@@ -64,7 +63,7 @@ class BinaryOperator < Operator
     f.call(operands[0], operands[1])
   end
   def applies_to?(x, y)
-    true
+    x.alive? && y.alive?
   end
   def expression_string(parent_precedence, operand1, operand2)
     if prefix?
@@ -141,9 +140,6 @@ class << Concat
   end
   def applies_to?(x, y)
     (x.is_a? Digit) && (y.is_a? Digit)
-  end
-  def opCount
-    0
   end
 end
 

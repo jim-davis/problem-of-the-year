@@ -1,11 +1,5 @@
-require "Rspec"
-
-b = Dir.pwd
-$LOAD_PATH << b
-$LOAD_PATH << File.join(b ,"tree_based")
-
 require "generate"
-require "expressions"
+
 
 describe "#monadic_expressions_over" do
   it "the unit tests assume there are five monadic operators" do
@@ -30,16 +24,6 @@ describe "#expressions_over" do
   it "generates an array of expressions" do
     r = expressions_over([Digit.new(1)], [Digit.new(2)])
     expect(r[0].kind_of?(Expression)).to eq(true)
-  end
-  it "generates the right number of new expressions" do
-    op1 = [Digit.new(1), Digit.new(2)]
-    op2 = [Digit.new(3), Digit.new(4)]
-    r = expressions_over(op1, op2)
-    # Fixme.  This has implict knowledge that there are exactly three monadic operators
-    # that can apply to expressions (as opposed to the ones that apply only to digits)
-    # and it knows that every binary operator is applicable.
-    # The +1 is because we also include the null monadic operator
-    expect(r.length).to eq( (3 + 1) * BINARY_OPERATORS.length * op1.count * op2.count)
   end
 end
 

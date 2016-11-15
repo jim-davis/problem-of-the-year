@@ -1,5 +1,8 @@
-require "expressions"
+require "util"
+require "digit"
 require "operators"
+require "monadic_expression"
+require "binary_expression"
 
 # Fixme: assumes there are four digits
 def generate_expressions(digits, allow_permutations, stats) 
@@ -86,5 +89,13 @@ def monadic_expressions_over(operand)
   [operand] + 
     MONADIC_OPERATORS
     .select { |op| op.applies_to?(operand)}
-    .map { |op| MonadicExpression.new(op, operand) }
+    .map { |op| begin
+                  MonadicExpression.new(op, operand) 
+                rescue Noop
+                  nil
+                rescue RangeError
+                  nil
+                end 
+  }
+  .reject(&:nil?)
 end

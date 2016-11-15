@@ -1,5 +1,3 @@
-$LOAD_PATH << File.join(Dir.pwd ,"tree_based")
-
 require "generate"
 require "util"
 

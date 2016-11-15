@@ -1,7 +1,6 @@
-require "Rspec"
-require "expressions"
 require "operators"
 require "extra_operators"
+require "digit"
 
 describe MonadicOperator do
   describe "#expression_string" do
@@ -182,11 +181,6 @@ describe "Concat" do
   describe "#expression_string" do
     it "concatenates" do
       expect(Concat.expression_string(0, 1, 2)).to eq("12")
-    end
-  end
-  describe "#opCount" do
-    it "is zero" do
-      expect(Concat.opCount).to eq(0)
     end
   end
 end

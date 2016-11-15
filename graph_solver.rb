@@ -63,6 +63,8 @@ class GraphTraverser
             end
           end
         end
+        # ADD Monadic operators here.  Apply to leaves first, then
+        # to interior expressions
       end
     end
   end

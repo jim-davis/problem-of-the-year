@@ -1,7 +1,9 @@
 require "expression"
 
 class MonadicExpression < Expression
+  attr_reader :operand
   def initialize(operator, operand)
+    @operand = operand
     super(operator, [operand])
   end
   def stringify(parent_precedence)

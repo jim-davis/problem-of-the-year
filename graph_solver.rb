@@ -4,6 +4,8 @@ require "util"
 require "arboretum"
 require "digit"
 require "binary_expression"
+require "monadic_expression"
+require "operators"
 
 require "operators"
 
@@ -63,11 +65,25 @@ class GraphTraverser
             end
           end
         end
-        if ! progress
-          # ADD Monadic operators here.  Apply to leaves first, then
-          # to interior expressions
-        end
       end
+      if ! progress
+        puts "no progress, adding monadic ops"
+        arboretum.nodes.select{ |n| !n.terminal? && n.alive?}.each do |operand|
+          [PrefixMinus, Decimalize, RepeatingDecimal, Fact, Sqrt].each do |op|
+            if op.applies_to?(operand) && ! arboretum.find_monadic_expression(op, operand)
+              # add a depth limit
+              begin
+                expr = MonadicExpression.new(op, operand)
+                puts "Adding #{expr}"
+                progress = true
+                arboretum.add(expr)
+              rescue Noop => e
+                puts e
+              end
+            end                 # end op
+          end                   # end node each
+        end                     # catch
+      end                       # !progress
     end
   end
 end

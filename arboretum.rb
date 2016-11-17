@@ -33,5 +33,13 @@ class Arboretum
       existing.left.eql?(l) &&
       existing.right.eql?(r)}
   end
- 
+
+  def find_monadic_expression(op, operand)
+    find { |existing|
+      existing.respond_to?(:operator) &&
+      existing.respond_to?(:operand) &&
+      existing.operator.eql?(op) &&
+      existing.operand.eql?(operand)}
+  end
+      
 end

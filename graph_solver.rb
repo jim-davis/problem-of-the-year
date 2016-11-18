@@ -15,12 +15,61 @@ class GraphPotySolver < PotySolver
     super(digits, range)
 
     @arboretum = Arboretum.new(digits.map { |d| Digit.new(d.to_i)})
-    gt = GraphTraverser.new(arboretum)
-    gt.each do |operator, left, right| 
+
+    each_possible_binary_operator do |operator, left, right| 
       consider(arboretum.add(BinaryExpression.new(operator, left, right)))
     end
 
     results
+  end
+
+  def each_possible_binary_operator (&block)
+    puts "starting with #{arboretum.nodes.count} nodes"
+    progress = true
+    while progress do
+      progress = false
+
+      arboretum.nodes.select {|l| !l.terminal? && l.alive?}.each do |l| 
+        arboretum.nodes.select { |r| !r.terminal? && r.alive? && arboretum.adjacent_leaves?(l,r)}.each do |r|
+          [Concat, Plus, Times, Minus, Divide, Expt ].each do |op| 
+            if op.applies_to?(l, r) && !arboretum.find_expression(op, l, r) 
+              progress = true
+              block.call([op, l, r]) 
+            end
+          end
+        end
+      end
+
+      if progress
+        puts "found #{nsolved} solutions in #{arboretum.nodes.count} nodes"
+      else
+        puts "no progress, adding monadic ops"
+        nadded = add_monadic_operators
+        if nadded > 0
+          puts "Added #{nadded} monadic operations"
+          progress = true
+        end
+      end
+    end
+  end
+
+  def add_monadic_operators
+    nadded = 0
+    arboretum.nodes.select{ |n| !n.terminal? && n.alive?}.each do |operand|
+      [PrefixMinus, Decimalize, RepeatingDecimal, Fact, Sqrt].each do |op|
+        if op.applies_to?(operand) &&
+            !arboretum.find_monadic_expression(op, operand) &&
+            operand.consecutive_monadic_operator_count <= 2
+          begin
+            expr = MonadicExpression.new(op, operand)
+            arboretum.add(expr)
+            nadded += 1
+          rescue Noop => e
+          end
+        end  
+      end
+    end
+    nadded
   end
 
   def consider(n)
@@ -52,38 +101,4 @@ class GraphTraverser
   end
 
   # invoke block repeatedly with candidate notes (O,L,R)
-  def each (&block)
-    progress = true
-    while progress do
-      progress = false
-      arboretum.nodes.select {|l| !l.terminal? && l.alive?}.each do |l| 
-        arboretum.nodes.select { |r| !r.terminal? && r.alive? && arboretum.adjacent_leaves?(l,r)}.each do |r|
-          [Concat, Plus, Times, Minus, Divide, Expt ].each do |op| 
-            if op.applies_to?(l, r) && !arboretum.find_expression(op, l, r) 
-              progress = true
-              block.call([op, l, r]) 
-            end
-          end
-        end
-      end
-      if ! progress
-        puts "no progress, adding monadic ops"
-        arboretum.nodes.select{ |n| !n.terminal? && n.alive?}.each do |operand|
-          [PrefixMinus, Decimalize, RepeatingDecimal, Fact, Sqrt].each do |op|
-            if op.applies_to?(operand) && ! arboretum.find_monadic_expression(op, operand)
-              # add a depth limit
-              begin
-                expr = MonadicExpression.new(op, operand)
-                puts "Adding #{expr}"
-                progress = true
-                arboretum.add(expr)
-              rescue Noop => e
-                puts e
-              end
-            end                 # end op
-          end                   # end node each
-        end                     # catch
-      end                       # !progress
-    end
-  end
 end

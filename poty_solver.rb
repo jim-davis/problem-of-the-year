@@ -27,7 +27,11 @@ class PotySolver
   end
 
   def complete?
-    results.keys.length === range.count
+    nsolved.eql?(range.count)
+  end
+  
+  def nsolved
+    results.keys.length
   end
 
 end

@@ -16,12 +16,15 @@ class Node
     @leaves.last
   end
   def alive?
-    ! value.nil?
+    ! dead?
   end
   def dead?
-     !alive?
+     value.nil? || (value.is_a?(Float) && (value.infinite? || value.nan?))
   end
   def terminal?
     leaves.count == arboretum.leaves.count
+  end
+  def consecutive_monadic_operator_count
+    0
   end
 end

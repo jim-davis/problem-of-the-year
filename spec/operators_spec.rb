@@ -1,6 +1,7 @@
 require "operators"
 require "extra_operators"
 require "digit"
+require "binary_expression"
 
 describe MonadicOperator do
   describe "#expression_string" do
@@ -181,6 +182,27 @@ describe "Concat" do
   describe "#expression_string" do
     it "concatenates" do
       expect(Concat.expression_string(0, 1, 2)).to eq("12")
+    end
+  end
+  describe "applies_to?" do
+    it "can be applied to Digits" do
+      expect(Concat.applies_to?(Digit.new("1"), Digit.new("2"))).to be true
+    end
+    it "can be applied to Concat" do
+      d = Digit.new("1")
+      concat = double("BinaryExpression")
+      allow(concat).to receive(:is_a?).with(Digit) {false}
+      allow(concat).to receive(:is_a?).with(BinaryExpression) {true}
+      allow(concat).to receive(:op) {Concat}
+      expect(Concat.applies_to?(concat, d)).to be true
+    end
+    it "can not be applied to other expr Concat" do
+      d = Digit.new("1")
+      plus = double("BinaryExpression")
+      allow(plus).to receive(:is_a?).with(Digit) {false}
+      allow(plus).to receive(:is_a?).with(BinaryExpression) {true}
+      allow(plus).to receive(:op) {Plus}
+      expect(Concat.applies_to?(plus, d)).to be false
     end
   end
 end

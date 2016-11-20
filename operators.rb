@@ -120,7 +120,7 @@ Expt = BinaryOperator.new("**", 4, Proc.new {|op1, op2| safe_expt(op1, op2)}, :I
 
 def safe_expt(op1, op2)
   raise RangeError.new("Exponent power #{op2} is negative") if op2 < 0
-  raise RangeError.new("Exponent power #{op2} must be integer") if ! op2.is_a? Integer
+  raise RangeError.new("Exponent power #{op2} must be integer") if ! op2.is_a?(Integer)
   raise RangeError.new("Exponent power #{op2} too large")  if op2 > 8
   raise RangeError.new("Exponent #{op1} power #{op2} too large") if op1 * op2 > 20
   op1 ** op2
@@ -139,7 +139,8 @@ class << Concat
     evaluate([operand1, operand2]).to_s
   end
   def applies_to?(x, y)
-    (x.is_a? Digit) && (y.is_a? Digit)
+    (x.is_a?(Digit) || (x.is_a?(BinaryExpression) &&  x.op.eql?(Concat))) &&
+      (y.is_a?(Digit) || (y.is_a?(BinaryExpression && y.op.eql?(Concat))))
   end
 end
 
@@ -178,7 +179,7 @@ def safe_sqrt(x)
   raise Noop if x == 0
   raise Noop if x == 1
   raise RangeError.new("Sqrt no complex arithmetic. sqrt(#{x})") if x < 0
-  raise RangeError.new("Sqrt only for integers, not #{x}") if ! x.is_a? Integer
+  raise RangeError.new("Sqrt only for integers, not #{x}") if ! x.is_a? (Integer)
   # for our purposes we only want square roots that are integers
   v = Math.sqrt(x)
   i = v.to_i
@@ -193,7 +194,7 @@ monadic_operators << Sqrt
 Decimalize = MonadicOperator.new(".", 10, Proc.new { |op| op * 0.1 }, :PRE)
 class << Decimalize
    def applies_to?(x)
-    (x.is_a? Digit)
+     x.is_a?(Digit)
   end
   def expression_string(parent_precedence, operand)
     "." + operand.stringify(@precedence) 
@@ -206,7 +207,7 @@ monadic_operators << Decimalize
 RepeatingDecimal = MonadicOperator.new(".", 10, Proc.new { |op| 1 }, :PRE)
 class << RepeatingDecimal
   def applies_to?(x)
-     (x.is_a? Digit) && x.value == 9
+     x.is_a?(Digit) && x.value == 9
    end
    def expression_string(parent_precedence, operand)
      "." + operand.stringify(@precedence) + "_"

@@ -1,8 +1,9 @@
 class PotySolver
-  attr_reader :stats, :allow_permutations, :results, :range
-  def initialize(statistics, allow_permutations=false) 
+  attr_reader :stats, :allow_permutations, :results, :range, :verbose
+  def initialize(statistics, options)
     @stats = statistics
-    @allow_permutations = allow_permutations
+    @allow_permutations = options[:allow_permutations]
+    @verbose = options[:verbose]
   end
 
   # Given a list of digits and a range, return a hash where key is a whole number and the 
@@ -15,7 +16,7 @@ class PotySolver
   end
 
   def interesting?(v)
-    v.is_Integer? && range.include?(v.floor)
+    !v.nil? && v.is_Integer? && range.include?(v.floor)
   end
 
   def add_result(v, expr) 
@@ -27,7 +28,11 @@ class PotySolver
   end
 
   def complete?
-    results.keys.length === range.count
+    nsolved.eql?(range.count)
+  end
+  
+  def nsolved
+    results.keys.length
   end
 
 end

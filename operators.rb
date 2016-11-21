@@ -1,3 +1,8 @@
+require "util"
+require "digit"
+require "monadic_expression"
+require "binary_expression"
+
 class Noop < Exception
 end
 
@@ -27,13 +32,13 @@ class Operator
   def commutative?
     @is_commutative
   end
-  def opCount
-    1
-  end
   # syntactic check.  for example, you can concatenate Digits, but not expressions.
   # This does not (and can not) check values of expressions, e.g. sqrt(negative)
   def applies_to?(x)
     true
+  end
+  def to_s
+    symbol
   end
 end
 
@@ -42,7 +47,7 @@ class MonadicOperator < Operator
     f.call(operands[0])
   end
   def applies_to?(x)
-    true
+    x.alive?
   end
   def expression_string(parent_precedence, operand)
     if postfix?
@@ -61,7 +66,7 @@ class BinaryOperator < Operator
     f.call(operands[0], operands[1])
   end
   def applies_to?(x, y)
-    true
+    x.alive? && y.alive?
   end
   def expression_string(parent_precedence, operand1, operand2)
     if prefix?
@@ -95,10 +100,16 @@ Divide = BinaryOperator.new("/", 3, Proc.new {|op1, op2| Float(op1) / op2}, :IN,
 
 class << Plus
   @inverse = Minus
+  def applies_to?(x, y)
+    x.alive? && y.alive? && !(y.is_a?(MonadicExpression) && y.operator.eql?(PrefixMinus))
+  end
 end
 
 class << Minus
   @inverse = Plus
+  def applies_to?(x, y)
+    x.alive? && y.alive? && !(y.is_a?(MonadicExpression) && y.operator.eql?(PrefixMinus))
+  end
 end
 
 class << Times
@@ -107,6 +118,9 @@ end
 
 class << Divide
   @inverse = Times
+  def applies_to?(x, y)
+    x.alive? && y.alive? && ! y.value.eql?(0)
+  end
 end
 
 binary_operators << Plus
@@ -118,7 +132,7 @@ Expt = BinaryOperator.new("**", 4, Proc.new {|op1, op2| safe_expt(op1, op2)}, :I
 
 def safe_expt(op1, op2)
   raise RangeError.new("Exponent power #{op2} is negative") if op2 < 0
-  raise RangeError.new("Exponent power #{op2} must be integer") if ! op2.is_a? Integer
+  raise RangeError.new("Exponent power #{op2} must be integer") if ! op2.is_a?(Integer)
   raise RangeError.new("Exponent power #{op2} too large")  if op2 > 8
   raise RangeError.new("Exponent #{op1} power #{op2} too large") if op1 * op2 > 20
   op1 ** op2
@@ -137,10 +151,8 @@ class << Concat
     evaluate([operand1, operand2]).to_s
   end
   def applies_to?(x, y)
-    (x.is_a? Digit) && (y.is_a? Digit)
-  end
-  def opCount
-    0
+    (x.is_a?(Digit) || (x.is_a?(BinaryExpression) &&  x.operator.eql?(Concat))) &&
+      (y.is_a?(Digit) || (y.is_a?(BinaryExpression) && y.operator.eql?(Concat)))
   end
 end
 
@@ -179,7 +191,7 @@ def safe_sqrt(x)
   raise Noop if x == 0
   raise Noop if x == 1
   raise RangeError.new("Sqrt no complex arithmetic. sqrt(#{x})") if x < 0
-  raise RangeError.new("Sqrt only for integers, not #{x}") if ! x.is_a? Integer
+  raise RangeError.new("Sqrt only for integers, not #{x}") if ! x.is_a? (Integer)
   # for our purposes we only want square roots that are integers
   v = Math.sqrt(x)
   i = v.to_i
@@ -194,7 +206,7 @@ monadic_operators << Sqrt
 Decimalize = MonadicOperator.new(".", 10, Proc.new { |op| op * 0.1 }, :PRE)
 class << Decimalize
    def applies_to?(x)
-    (x.is_a? Digit)
+     x.is_a?(Digit)
   end
   def expression_string(parent_precedence, operand)
     "." + operand.stringify(@precedence) 
@@ -207,7 +219,7 @@ monadic_operators << Decimalize
 RepeatingDecimal = MonadicOperator.new(".", 10, Proc.new { |op| 1 }, :PRE)
 class << RepeatingDecimal
   def applies_to?(x)
-     (x.is_a? Digit) && x.value == 9
+     x.is_a?(Digit) && x.value == 9
    end
    def expression_string(parent_precedence, operand)
      "." + operand.stringify(@precedence) + "_"
@@ -220,6 +232,9 @@ PrefixMinus = MonadicOperator.new("-", 12, Proc.new{ |op| 0 - op}, :PRE)
 class << PrefixMinus
    def expression_string(parent_precedence, operand)
      "-" + operand.stringify(@precedence)
+   end
+   def applies_to?(x)
+     x.alive? && ! (x.is_a?(MonadicExpression) && x.operator.eql?(PrefixMinus))
    end
 
  end

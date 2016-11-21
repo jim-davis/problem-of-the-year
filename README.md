@@ -16,7 +16,9 @@ ruby poty.rb --digits 1492
 
 (1492 just happens to be the year that was used in my kid's class.  I'm aware that the events of the year 1492 caused some significant problems for the people living in the continents now called "America".)
 
-This implementation generates all possible expression trees using the five binary operators, applying the monadic operators to the digits and to the intermediate values in the tree.  That's about 30 million expressions in total, worse case.
+Two implementations here.  
 
-It found only 54 solutions when using the digits in the current year (2016).  I do not know whether POTY is known to be solvable for all years.  I am sure that my program does not generate all possible expression trees, but the combinatorics of the brute force solution were getting out of hand.  I am considering trying a depth-first graph search as an alternate approach.)
+The first (tree) generates all possible expression trees using the five binary operators, applying the monadic operators to the digits and to the intermediate values in the tree.  That's about 30 million expressions in total, worse case.  The second one (graph) grows expression trees from the four given leaf nodes, upward.  It's must faster that the tree algorithm.  At present, it also generates the exact same tree more than once, that's a little wasteful but not a serious problem.
+
+When using the digits in the current year (2016), The tree searcher finds only 54 solutions.  I do not know whether POTY is known to be solvable for all years.  I am sure the tree algorithm does not generate all possible trees, but the combinatorics were getting out of hand (which is why I made the graph solver.  The graph solver eventually finds 60 solutions, after examining 4 million expresions.
 

@@ -8,8 +8,8 @@ $LOAD_PATH << Dir.pwd
 require "statistics"
 require "optparse"
 autoload :PotySolver, "poty_solver.rb"
-autoload :TreePotySolver, "tree_based/tree_solver.rb"
-autoload :GraphPotySolver, "graph_based/graph_solver.rb"
+autoload :TreePotySolver, "tree_solver.rb"
+autoload :GraphPotySolver, "graph_solver.rb"
 
 
 def main
@@ -19,7 +19,7 @@ def main
     only: nil,
     show_all: false,
     permutations: false,
-    algorithm: :tree
+    algorithm: :graph
   }
 
   OptionParser.new do |opts|
@@ -45,10 +45,10 @@ def main
     end
 
     opts.on("--tree", "use tree-generation algorithm") do |v|
-      options[:algorithm] == :tree
+      options[:algorithm] = :tree
     end
     opts.on("--graph", "use graph-exploration algorithm") do |v|
-      options[:algorithm] == :graph
+      options[:algorithm] = :graph
     end
 
     opts.on_tail("-h", "--help", "Show this message") do
@@ -72,37 +72,38 @@ def main
 
   solver = case options[:algorithm]
            when :tree
-             TreePotySolver.new(stats, options[:permutations])
+             TreePotySolver.new(stats, options)
            when :graph
-             GraphPotySolver.new(stats)
+             GraphPotySolver.new(stats, options)
            else
              raise "Unsupported solver algorithm #{options[:algorithm]}"
            end
   
-  r = solver.solve(options[:digits], 1..options[:max])
+  range = 1..options[:max]
+  r = solver.solve(options[:digits], range)
 
   stats.report
   if options[:only]
-    r[options[:only]].sort_by{|e| e.opCount}.each{|expr| puts expr.to_s}
+    r[options[:only]].each{|expr| puts expr.to_s}
   else
-    print_results(r, options[:show_all])
+    print_results(r, options[:show_all], range)
   end
 end
 
 # print the results, either showing one expression or all
 # If showing only one, pick the smallest one.
-def print_results(value_expressions, show_all)
+def print_results(value_expressions, show_all, range)
   if value_expressions.keys.length == 0
     puts "No solutions!"
   else
     value_expressions.keys.sort.each do |k|
-      expressions = value_expressions[k].sort_by{|e| e.opCount}
+      expressions = value_expressions[k]
       puts "#{k}: " + (show_all ? "#{expressions}" : 
         "#{expressions.first}" + 
         ((expressions.length > 1) ? " plus #{expressions.length - 1} more" : ""))
     end
     found = value_expressions.keys
-    missing = (1..found.max).reject {|i| found.find{|elt| elt == i}}
+    missing = range.reject {|i| found.find{|elt| elt == i}}
     if missing.length > 0
       puts "Missing: #{missing.inspect}"
     end

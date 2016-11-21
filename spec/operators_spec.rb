@@ -7,10 +7,10 @@ describe MonadicOperator do
   describe "#expression_string" do
     describe "when postfix" do
       it "appends the symbol to the operand" do
-        op = MonadicOperator.new("@", 0,  nil, :POST)
+        postfix_operator = MonadicOperator.new("@", 0,  nil, :POST)
         operand = double("operand")
         allow(operand).to receive(:stringify) {"259"}
-        expect(op.expression_string(-1, operand)).to eql("259@")
+        expect(postfix_operator.expression_string(-1, operand)).to eql("259@")
       end
     end
     describe "otherwise" do
@@ -193,7 +193,7 @@ describe "Concat" do
       concat = double("BinaryExpression")
       allow(concat).to receive(:is_a?).with(Digit) {false}
       allow(concat).to receive(:is_a?).with(BinaryExpression) {true}
-      allow(concat).to receive(:op) {Concat}
+      allow(concat).to receive(:operator) {Concat}
       expect(Concat.applies_to?(concat, d)).to be true
     end
     it "can not be applied to other expr Concat" do
@@ -201,7 +201,7 @@ describe "Concat" do
       plus = double("BinaryExpression")
       allow(plus).to receive(:is_a?).with(Digit) {false}
       allow(plus).to receive(:is_a?).with(BinaryExpression) {true}
-      allow(plus).to receive(:op) {Plus}
+      allow(plus).to receive(:operator) {Plus}
       expect(Concat.applies_to?(plus, d)).to be false
     end
   end

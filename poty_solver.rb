@@ -1,8 +1,9 @@
 class PotySolver
-  attr_reader :stats, :allow_permutations, :results, :range
-  def initialize(statistics, allow_permutations=false) 
+  attr_reader :stats, :allow_permutations, :results, :range, :verbose
+  def initialize(statistics, options)
     @stats = statistics
-    @allow_permutations = allow_permutations
+    @allow_permutations = options[:allow_permutations]
+    @verbose = options[:verbose]
   end
 
   # Given a list of digits and a range, return a hash where key is a whole number and the 

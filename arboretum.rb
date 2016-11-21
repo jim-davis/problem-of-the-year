@@ -41,5 +41,15 @@ class Arboretum
       existing.operator.eql?(op) &&
       existing.operand.eql?(operand)}
   end
+
+  def left_neighbour(leaf)
+    i = leaves.find_index(leaf)
+    i == 0 ? nil : leaves[i-1]
+  end
+
+  def right_neighbour(leaf)
+    i = leaves.find_index(leaf)
+    i == leaves.length - 1 ? nil : leaves[i+1]
+  end
       
 end

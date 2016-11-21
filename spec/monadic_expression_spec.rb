@@ -4,7 +4,9 @@ describe MonadicExpression do
   before(:each) do
     @op  =  double("operand")
     allow(@op).to receive(:depth) {7}
-    allow(@op).to receive(:leaves) {[]}
+    allow(@op).to receive(:leaves) {[@op]}
+    allow(@op).to receive(:add_right_ancestor)
+    allow(@op).to receive(:add_left_ancestor)
     allow(@op).to receive(:value) {0}
     @operator = double("operator")
     allow(@operator).to receive(:evaluate).with([0]) {1}

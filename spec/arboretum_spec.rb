@@ -85,6 +85,19 @@ describe Arboretum do
         expect(@arboretum.find_expression(@op, @l, @r)).to be(nil)
       end
     end
-               
   end
+
+  describe "#right_neighbour" do
+    describe "of a leaf that is not last" do
+      it "return the next leaf" do
+        expect(@arboretum.right_neighbour(@leaves[0])).to be @leaves[1]
+      end
+    end
+    describe "of the last leaf" do
+      it "returns null" do
+        expect(@arboretum.right_neighbour(@leaves.last)).to be nil
+      end
+    end
+  end
+
 end

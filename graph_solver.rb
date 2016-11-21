@@ -10,95 +10,65 @@ require "operators"
 require "operators"
 
 class GraphPotySolver < PotySolver
-  attr_reader :arboretum
   def solve(digits, range)
     super(digits, range)
-
     @arboretum = Arboretum.new(digits.map { |d| Digit.new(d.to_i)})
+    @max_expressions = 30 * 1000 * 1000
+    unexplored = []
 
-    each_possible_binary_operator do |operator, left, right| 
-      consider(arboretum.add(BinaryExpression.new(operator, left, right)))
+    @arboretum.leaves.each { |leaf| unexplored.push(leaf)}
+    @explored = 0
+    @seen = 0
+    while ((node = unexplored.shift) && !complete? && @explored < @max_expressions)
+      @explored+=1
+      puts "#{@explored} nodes explored. #{unexplored.length} remaining #{@arboretum.nodes.count} nodes. #{nsolved} solved" if (@explored % 10 == 0) && verbose
+      added = 0
+      next_nodes(node) do |expr| 
+        if expr.alive?
+          added+=1
+          @arboretum.add(expr)
+          unexplored.push(expr)
+          # a node is a possible solution if it uses all four digits and has a value
+          # and if the value is interesting then it really IS a solution.
+          if expr.terminal?
+            stats.countEvaluation
+            v = expr.value
+            stats.countExpression
+            add_result(v, expr) if interesting?(v)
+          end
+        end
+      end
+
     end
-
     results
   end
 
-  def each_possible_binary_operator (&block)
-    puts "starting with #{arboretum.nodes.count} nodes"
-    progress = true
-    while progress do
-      progress = false
-
-      arboretum.nodes.select {|l| !l.terminal? && l.alive?}.each do |l| 
-        arboretum.nodes.select { |r| !r.terminal? && r.alive? && arboretum.adjacent_leaves?(l,r)}.each do |r|
-          [Concat, Plus, Times, Minus, Divide, Expt ].each do |op| 
-            if op.applies_to?(l, r) && !arboretum.find_expression(op, l, r) 
-              progress = true
-              block.call([op, l, r]) 
-            end
-          end
-        end
-      end
-
-      if progress
-        puts "found #{nsolved} solutions in #{arboretum.nodes.count} nodes"
-      else
-        puts "no progress, adding monadic ops"
-        nadded = add_monadic_operators
-        if nadded > 0
-          puts "Added #{nadded} monadic operations"
-          progress = true
-        end
+  def next_nodes(node, &block) 
+    [PrefixMinus, Decimalize, RepeatingDecimal, Fact, Sqrt].
+      select {|op| op.applies_to?(node)}.
+      each do |op|
+      begin
+        block.call(MonadicExpression.new(op, node))
+      rescue Noop => e
       end
     end
-  end
 
-  def add_monadic_operators
-    nadded = 0
-    arboretum.nodes.select{ |n| !n.terminal? && n.alive?}.each do |operand|
-      [PrefixMinus, Decimalize, RepeatingDecimal, Fact, Sqrt].each do |op|
-        if op.applies_to?(operand) &&
-            !arboretum.find_monadic_expression(op, operand) &&
-            operand.consecutive_monadic_operator_count <= 2
-          begin
-            expr = MonadicExpression.new(op, operand)
-            arboretum.add(expr)
-            nadded += 1
-          rescue Noop => e
-          end
-        end  
-      end
+    node.left_adjacents.each do |l|
+      [Concat, Plus, Times, Minus, Divide, Expt ].
+        select { | op| op.applies_to?(l, node)}.
+# We don't search for duplicates because it slows the program extremely
+# we'd need to give each node a pointer to every expression that used it 
+#        reject { |op| @arboretum.find_expression(op, l, node)}.
+        each { |op| block.call(BinaryExpression.new(op, l, node))}
     end
-    nadded
-  end
 
-  def consider(n)
-    # a node is a possible solution if it uses all four digits and has a value
-    # and if the value is interesting then it really IS a solution.
-    if n.terminal? && n.alive?
-      stats.countEvaluation
-      v = n.value
-      stats.countExpression
-      add_result(v, n) if interesting?(v)
+    node.right_adjacents.each do |r|
+      [Concat, Plus, Times, Minus, Divide, Expt ].
+        select { | op| op.applies_to?(node, r)}.
+#        reject { |op| @arboretum.find_expression(op, node, r)}.
+        each { |op| block.call(BinaryExpression.new(op, node, r))}
     end
+
   end
-
-
-end
-
-# Generate possible nodes (O, L, R)
-# L is not terminal
-# L is alive
-# there exists another node R
-# that is not terminal and is alive
-# whose left ancestor is adjacent to the right ancestor of L
-# and there exists a binary operator O such there is no existing Node (O L R)
-class GraphTraverser
-  attr_reader :arboretum
-  include Enumerable
-  def initialize(arboretum)
-    @arboretum = arboretum
-  end
-
-  # invoke block repeatedly with candidate notes (O,L,R)
+        
 end

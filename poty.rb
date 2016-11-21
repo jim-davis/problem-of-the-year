@@ -72,9 +72,9 @@ def main
 
   solver = case options[:algorithm]
            when :tree
-             TreePotySolver.new(stats, options[:permutations])
+             TreePotySolver.new(stats, options)
            when :graph
-             GraphPotySolver.new(stats)
+             GraphPotySolver.new(stats, options)
            else
              raise "Unsupported solver algorithm #{options[:algorithm]}"
            end

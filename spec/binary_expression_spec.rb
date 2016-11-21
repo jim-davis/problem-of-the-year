@@ -3,14 +3,18 @@ require "binary_expression"
 describe BinaryExpression do
   describe "#initialze" do
     before(:each) do
-      la = [1, 2]
+      @leaves = Array.new(4){double(Node)}
+      @leaves.each do |l|
+        allow(l).to receive(:add_left_ancestor)
+        allow(l).to receive(:add_right_ancestor)
+      end
       @left = double("Node")
-      allow(@left).to receive(:leaves) {la}
+      allow(@left).to receive(:leaves) {@leaves[0..1]}
       allow(@left).to receive(:value) {4}
       allow(@left).to receive(:depth) {5}
       ra = [3, 4]
       @right = double("Node")
-      allow(@right).to receive(:leaves) {ra}
+      allow(@right).to receive(:leaves) {@leaves[2..3]}
       allow(@right).to receive(:value) {9}
       allow(@right).to receive(:depth) {2}
       @op = double("Operator")
@@ -19,7 +23,7 @@ describe BinaryExpression do
 
     it "makes a Node where the leaves are the combination of the left and right leaves" do
       r = BinaryExpression.new(@op, @left, @right)
-      expect(r.leaves).to eq([1,2,3,4])
+      expect(r.leaves).to eq(@leaves)
     end
 
     it "makes a Node whose value is obtained by evaluating the operator on the values" do

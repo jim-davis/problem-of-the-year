@@ -1,4 +1,7 @@
 require "util"
+require "digit"
+require "monadic_expression"
+require "binary_expression"
 
 class Noop < Exception
 end
@@ -97,10 +100,16 @@ Divide = BinaryOperator.new("/", 3, Proc.new {|op1, op2| Float(op1) / op2}, :IN,
 
 class << Plus
   @inverse = Minus
+  def applies_to?(x, y)
+    x.alive? && y.alive? && !(y.is_a?(MonadicExpression) && y.operator.eql?(PrefixMinus))
+  end
 end
 
 class << Minus
   @inverse = Plus
+  def applies_to?(x, y)
+    x.alive? && y.alive? && !(y.is_a?(MonadicExpression) && y.operator.eql?(PrefixMinus))
+  end
 end
 
 class << Times
@@ -109,6 +118,9 @@ end
 
 class << Divide
   @inverse = Times
+  def applies_to?(x, y)
+    x.alive? && y.alive? && ! y.value.eql?(0)
+  end
 end
 
 binary_operators << Plus
@@ -139,8 +151,8 @@ class << Concat
     evaluate([operand1, operand2]).to_s
   end
   def applies_to?(x, y)
-    (x.is_a?(Digit) || (x.is_a?(BinaryExpression) &&  x.op.eql?(Concat))) &&
-      (y.is_a?(Digit) || (y.is_a?(BinaryExpression && y.op.eql?(Concat))))
+    (x.is_a?(Digit) || (x.is_a?(BinaryExpression) &&  x.operator.eql?(Concat))) &&
+      (y.is_a?(Digit) || (y.is_a?(BinaryExpression) && y.operator.eql?(Concat)))
   end
 end
 
@@ -220,6 +232,9 @@ PrefixMinus = MonadicOperator.new("-", 12, Proc.new{ |op| 0 - op}, :PRE)
 class << PrefixMinus
    def expression_string(parent_precedence, operand)
      "-" + operand.stringify(@precedence)
+   end
+   def applies_to?(x)
+     x.alive? && ! (x.is_a?(MonadicExpression) && x.operator.eql?(PrefixMinus))
    end
 
  end
